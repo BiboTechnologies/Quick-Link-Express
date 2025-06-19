@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>SNR XPRESS LIMITED</title>
+  <link href="snr-xpress-high-resolution-logo.png" rel="icon">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,600" /><link rel="stylesheet" href="https://public.codepenassets.com/css/reset-2.0.min.css">
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css'>
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/jquery.selectric/1.10.1/selectric.css'>
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css'><link rel="stylesheet" href="./product.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<nav class="navbar navbar-dark sticky-top flex-md-nowrap p-0">
+	<a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">SNR XPRESS LIMITED</a>
+	<input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+	<ul class="navbar-nav px-3">
+		<li class="nav-item text-nowrap">
+			<a class="nav-link" href="#">Sign out</a>
+		</li>
+	</ul>
+</nav>
+<div class="container-fluid">
+	<div class="row">
+		<nav class="col-md-2 d-none d-md-block sidebar">
+			<div class="sidebar-sticky">
+				<ul class="nav flex-column">
+					<li class="nav-item">
+						<a class="nav-link" href="index.html">
+                  <i class="zmdi zmdi-widgets"></i>
+                  Dashboard <span class="sr-only">(current)</span>
+                </a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="orders.html">
+                  <i class="zmdi zmdi-file-text"></i>
+                  Orders
+                </a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link active" href="products.html">
+                  <i class="zmdi zmdi-shopping-cart"></i>
+                  Products
+                </a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+                  <i class="zmdi zmdi-accounts"></i>
+                  Customers
+                </a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+                  <i class="zmdi zmdi-chart"></i>
+                  Reports
+                </a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+                  <i class="zmdi zmdi-layers"></i>
+                  Integrations
+                </a>
+					</li>
+				</ul>
+
+				<h6 class="sidebar-heading d-flex justify-content-between align-items-center pl-3 mt-4 mb-1 text-muted">
+					<span>Saved reports</span>
+					<a class="d-flex align-items-center text-muted" href="#">
+						<i class="zmdi zmdi-plus-circle-o"></i>
+					</a>
+				</h6>
+				<ul class="nav flex-column mb-2">
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+                  <i class="zmdi zmdi-file-text"></i>
+                  Current month
+                </a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+                  <i class="zmdi zmdi-file-text"></i>
+                  Last quarter
+                </a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+                  <i class="zmdi zmdi-file-text"></i>
+                  Social engagement
+                </a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+                  <i class="zmdi zmdi-file-text"></i>
+                  Year-end sale
+                </a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+
+		<main role="main" class="col-md-9 ml-sm-auto col-lg-10 my-3">
+      <div class="logo-container">
+        <img src="snr-xpress-high-resolution-logo.png" alt="Company Logo" class="logo-image">
+      </div>
+      
+			<div class="card-list">
+				<div class="row">
+					<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+						<div class="card blue">
+              <div class="title">All Orders</div>
+              <i class="zmdi zmdi-upload"></i>
+              <div class="value" id="order-count">0</div>
+              <div class="stat"><b>13</b>% increase</div>
+            </div>
+            
+					</div>
+
+	<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+						<div class="card orange">
+              <div class="title">Over-all Income</div>
+              <i class="zmdi zmdi-download"></i>
+              <div class="value" id="total-income">UGX 0</div>
+              <div class="stat"><b>13</b>% decrease</div>
+            </div>
+            
+					</div>
+
+					<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+            <div class="card green">
+              <div class="title">Today's income</div>
+              <i class="zmdi zmdi-upload"></i>
+              <div class="value" id="todays-income">UGX 0</div>
+              <div class="stat"><b>4</b>% increase</div>
+            </div>
+            
+					</div>
+				
+					<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+						<div class="card red">
+              <div class="title">Not Paid Total</div>
+              <i class="zmdi zmdi-download"></i>
+              <div class="value" id="not-paid-total">UGX 0</div>
+              <div class="stat"><b>13</b>% decrease</div>
+            </div>
+            
+					</div>
+				</div>
+			</div>
+  <div class="top-bar">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search product...">
+      <div id="dropdown" class="dropdown" style="display: none;"></div>
+
+
+    </div>
+<button class="add-product-btn" id="addProductBtn">+ Add Product</button>
+
+<div style="margin-bottom: 20px; font-family: Arial, sans-serif;">
+  <label for="receiptSearchInput" style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 6px;background-color: beige;padding: 10px;border-radius: 10px;">
+    🔍 Search Receipt by Number:
+  </label>
+  <input
+    type="text"
+    id="receiptSearchInput"
+    placeholder="e.g. REC-20250614-12345"
+    style="
+      width: 100%;
+      max-width: 360px;
+      padding: 10px 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    "
+  />
+</div>
+
+<div style="margin-top: 14px;">
+  <button id="prevBtn"style="color:black;"  onmouseover="this.style.backgroundColor='#e0e0e0'" onmouseout="this.style.backgroundColor='#f0f0f0'">
+    ⬅️ Previous
+  </button>
+
+  <button id="nextBtn"  onmouseover="this.style.backgroundColor='#0056b3'" onmouseout="this.style.backgroundColor='#007bff'">
+    Next ➡️
+  </button>
+</div>
+<button id="newReceiptBtn" class="new-receipt-btn">➕ New Receipt</button>
+
+  </div>
+<div class="cart-header">
+  <h3>🛒 SNR XPRESS LIMITED POS</h3>
+  <span id="cartDate"></span>
+  <span id="orderIdDisplay"></span>
+</div>
+
+
+
+ <div id="totalContainer" style="margin-bottom: 5px; font-weight: bold;">
+      Overall Total: UGX <span id="overallTotal">0</span>
+    </div>
+<div style="display: flex; gap: 40px; align-items: flex-start; margin-bottom: 20px;">
+ 
+
+  <!-- Customer Info Section -->
+  <div id="customerInfo" style="flex: 1; max-width: 300px;">
+     <button id="deleteBtn" style="background-color: #e74c3c; color: white; padding: 6px 12px;margin:10px; border: none; border-radius: 6px; cursor: pointer;">
+  🗑️ Delete Order
+</button>
+    <h3>Customer Details</h3>
+    <label for="customerName">Customer Name:</label><br>
+    <input type="text" id="customerName" placeholder="Enter customer name" style="width: 100%; padding: 6px; margin-bottom: 12px;"><br>
+
+    <label for="customerDestination">Destination:</label><br>
+    <input type="text" id="customerDestination" placeholder="Enter destination" style="width: 100%; padding: 6px;">
+  </div>
+
+  <!-- Cart Table -->
+  <div style="flex: 2;">
+
+    <table id="cartTable" border="1" cellspacing="0" cellpadding="8" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+   
+  </div>
+</div>
+<!-- Save Receipt Button -->
+<div class="button-container">
+  <button id="saveReceiptBtn">💾 Save Receipt</button>
+  <button id="saveChangesBtn">💾 Save Changes</button>
+</div>
+
+
+
+<!-- Modal Structure -->
+<div class="modal" id="productModal">
+  <div class="modal-content">
+    <button class="close-btn" id="closeModal">X</button>
+    <h2>Add New Product</h2>
+    
+    <select id="productCategory" class="styled-input">
+      <option value="" disabled selected>Select Product Category</option>
+    </select>
+    
+    <input type="text" id="productName" placeholder="Product Name" class="styled-input">
+    <textarea id="productDescription" placeholder="Description" class="styled-textarea"></textarea>
+    <input type="number" id="productPrice" placeholder="Price" class="styled-input price-input">
+    
+    <button id="saveProduct" class="styled-button">Save Product</button>
+  </div>
+</div>
+
+
+<script>
+  const categories = [
+    "Back-Covers",
+    "Buttons",
+    "Camera-Glasses",
+    "Chesis",
+    "Finger-Prints",
+    "Glasses",
+    "Ports",
+    "accessories",
+    "electronics",
+    "gradeBScreens",
+    "newScreens",
+    "touches"
+  ];
+
+  const productCategorySelect = document.getElementById('productCategory');
+
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    productCategorySelect.appendChild(option);
+  });
+</script>
+
+
+</body>
+</html>
+<!-- partial -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js'></script>
+<script src='https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js'></script>
+<script src='https://cdn.jsdelivr.net/jquery.selectric/1.10.1/jquery.selectric.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js'></script><script type="module"  src="./products.js"></script>
+
+</body>
+</html>

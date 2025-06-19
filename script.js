@@ -295,13 +295,14 @@ parcelForm.addEventListener('submit', (e) => {
 
   });
 
+let ordersArray = []; // Declare globally so both onValue and button can access it
 
-  onValue(ordersRef, (snapshot) => {
-    const ordersTableBody = document.querySelector('#orders-table tbody');
-    ordersTableBody.innerHTML = ''; // Clear table
-  
-    const ordersArray = [];
-  
+onValue(ordersRef, (snapshot) => {
+  const ordersTableBody = document.querySelector('#orders-table tbody');
+  ordersTableBody.innerHTML = ''; // Clear table
+
+  ordersArray = []; // Reset before filling it again
+
     // Collect all orders into an array
     snapshot.forEach((childSnapshot) => {
       const order = childSnapshot.val();
@@ -393,6 +394,101 @@ row.querySelectorAll('.mark-delivered').forEach(button => {
     });
   });
   
+document.getElementById('showRevenueBtn').addEventListener('click', () => {
+  let totalRevenue = 0;
+  const dailyStats = {}; // date => { revenue, count }
+
+  ordersArray.forEach((order) => {
+    const status = order.payment.status.toLowerCase();
+    if (status === 'paid') {
+      const amount = Number(order.payment.amount);
+      totalRevenue += amount;
+
+      const date = new Date(order.timestamp).toISOString().split('T')[0];
+
+      if (!dailyStats[date]) {
+        dailyStats[date] = { revenue: 0, count: 0 };
+      }
+
+      dailyStats[date].revenue += amount;
+      dailyStats[date].count += 1;
+    }
+  });
+
+  const companyLogo = "snr-xpress-high-resolution-logo.png"; // Replace with your logo URL
+  const generatedAt = new Date().toLocaleString();
+
+const breakdownRows = Object.keys(dailyStats)
+  .sort()
+  .map(
+    (date, index) => `
+      <tr style="background-color: ${index % 2 === 0 ? '#f9f9f9' : '#fff'};">
+        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${date}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">UGX ${dailyStats[date].revenue.toLocaleString()}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center;">${dailyStats[date].count} order(s)</td>
+      </tr>
+    `
+  )
+  .join('');
+
+
+  const reportHtml = `
+<div style="font-family: Arial; max-width: 800px; margin: auto;">
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <img src="${companyLogo}" alt="Company Logo" style="height: 80px;">
+    
+    <div style="text-align: left;">
+      <h2 style="margin: 0;">SNR XPRESS LIMITED</h2>
+      <p style="margin: 2px 0;">
+        Plot 12, Luwum Street, Kampala, Uganda<br>
+        Tel: +256 754 142039 | Email: info@snrxpress.com
+      </p>
+    </div>
+
+  </div>
+</div>
+
+      <hr style="margin: 15px 0;">
+      <h3 style="text-align: center;">Revenue Report</h3>
+      <p><strong>Generated At:</strong> ${generatedAt}</p>
+      <p><strong>Total Revenue (Paid Orders):</strong> UGX ${totalRevenue.toLocaleString()}</p>
+
+<table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 15px;">
+  <thead style="background-color: #004080; color: white;">
+    <tr>
+      <th style="text-align: left; padding: 10px; border-bottom: 2px solid #004080;">Date</th>
+      <th style="text-align: right; padding: 10px; border-bottom: 2px solid #004080;">Amount (UGX)</th>
+      <th style="text-align: center; padding: 10px; border-bottom: 2px solid #004080;"># of Orders</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${breakdownRows}
+  </tbody>
+</table>
+
+
+      <p style="margin-top: 30px; font-size: 0.9em; text-align: center;">
+        Thank you for choosing SNR XPRESS LTD. Fast and Timely.
+      </p>
+    </div>
+  `;
+
+  //document.getElementById('revenueReport').innerHTML = reportHtml;
+
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <html>
+      <head>
+        <title>SNR XPRESS LTD - Revenue Report</title>
+      </head>
+      <body>
+        ${reportHtml}
+      </body>
+    </html>
+  `);
+  win.document.close();
+  win.print();
+});
 
 
 const toggleBtn = document.getElementById('toggle-section-btn');
