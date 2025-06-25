@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" href="kwik-link-xpress-high-resolution-logo.png">
+  <link rel="icon" href="./kwik-link-xpress-high-resolution-logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Track Parcel - KWIK LINK XPRESS</title>
 
@@ -87,12 +87,23 @@
 
 <div class="container">
   <div class="logo">
-    <img src="kwik-link-xpress-high-resolution-logo.png" alt="KWIK LINK Logo">
+    <img src="./kwik-link-xpress-high-resolution-logo.png" alt="KWIK LINK Logo">
   </div>
 
   <h2>Track Your Parcel</h2>
+<!-- HTML -->
+<div style="margin-bottom: 20px; text-align: center;">
+  <input type="text" id="searchOrderId" placeholder="Enter Order ID" style="padding: 8px; width: 300px; max-width: 90%; border: 1px solid #ccc; border-radius: 4px;">
+  <button id="searchBtn" style="padding: 8px 16px; margin-left: 5px; background-color: #007bff; color: white; border: none; border-radius: 4px;">Search</button>
+</div>
+<div id="searchResult"></div>
 
-  <div id="loader">Loading parcel info...</div>
+
+<div id="searchResult" class="mt-4"></div>
+
+<div id="loader" style="display:none; text-align:center; margin: 20px; font-weight:bold; color:#007bff;">
+  Loading parcel info...
+</div>
   <div id="trackingResult" style="display: none;"></div>
   <div id="notFound" class="not-found" style="display: none;">❌ Parcel not found. Please check your order ID.</div>
 
@@ -104,3 +115,19 @@
 
 </body>
 </html>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const orderIdFromUrl = params.get('orderId');
+
+  if (orderIdFromUrl) {
+    const inputField = document.getElementById('searchOrderId');
+    const searchButton = document.getElementById('searchBtn');
+
+    inputField.value = orderIdFromUrl;
+
+    // Simulate a click or call the search logic directly
+    searchButton.click();
+  }
+});
+</script>

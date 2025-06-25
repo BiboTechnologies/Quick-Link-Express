@@ -371,7 +371,9 @@ onValue(ordersRef, (snapshot) => {
     const orderId = button.getAttribute('data-id');
     const order = ordersArray.find(o => o._key === orderId);
     const receiptNo = order.orderId || order._key;
-    const trackingLink = `https://yourdomain.com/track?orderId=${receiptNo}`;
+    const trackingNo = order._key;
+
+const trackingLink = `https://bibotechnologies.github.io/Quick-Link-Express/tracking.html?orderId=${receiptNo}`;
 
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
@@ -393,7 +395,7 @@ onValue(ordersRef, (snapshot) => {
             .header {
               display: flex;
               align-items: center;
-              border-bottom: 3px solid #007bff;
+              border-bottom: 3px solidrgb(255, 0, 0);
               padding-bottom: 10px;
               margin-bottom: 20px;
             }
@@ -407,7 +409,7 @@ onValue(ordersRef, (snapshot) => {
             .header-text h2 {
               margin: 0;
               font-size: 26px;
-              color: #007bff;
+              color:rgb(228, 0, 0);
               text-transform: uppercase;
             }
             .ticket-title {
@@ -430,7 +432,7 @@ onValue(ordersRef, (snapshot) => {
             }
             .section h3 {
               margin-top: 0;
-              color: #007bff;
+              color:rgb(228, 0, 0);
               font-size: 16px;
               border-bottom: 1px solid #ddd;
               padding-bottom: 4px;
@@ -473,9 +475,9 @@ onValue(ordersRef, (snapshot) => {
           </style>
         </head>
         <body>
-          ${generateTicketHTML(receiptNo, order, trackingLink, 'Customer Copy')}
+${generateTicketHTML(receiptNo, order, trackingLink, 'Customer Copy', trackingNo)}
           <div class="divider"></div>
-          ${generateTicketHTML(receiptNo, order, trackingLink, 'Office Copy')}
+${generateTicketHTML(receiptNo, order, trackingLink, 'Office Copy', trackingNo)}
 
           <script>
             JsBarcode(".barcode-img", "${receiptNo}", {
@@ -500,13 +502,13 @@ onValue(ordersRef, (snapshot) => {
     printWindow.print();
   });
 });
-function generateTicketHTML(receiptNo, order, trackingLink, copyLabel) {
+function generateTicketHTML(receiptNo, order, trackingLink, copyLabel, trackingNo) {
   return `
     <div class="copy">
       <div class="header">
-        <img src="kwik-link-xpress-high-resolution-logo-transparent.png" alt="KWIK LINK Logo">
+        <img src="kwik-link-xpress-high-resolution-logo.png" alt="KWIK LINK Logo">
         <div class="header-text">
-          <h2>KWIK LINK XPRESS LIMITED</h2>
+          <h2>KWIKLINK XPRESS LIMITED</h2>
           <p>Plot 12, Luwum Street, Kampala, Uganda</p>
           <p>+256 754 142039 | +256 702 587589</p>
           <p>info@kwiklinkxpress.com</p>
@@ -516,6 +518,7 @@ function generateTicketHTML(receiptNo, order, trackingLink, copyLabel) {
       <div class="ticket-title">📦 PARCEL TICKET — <em>${copyLabel}</em></div>
 
       <p><strong>Receipt Number:</strong> ${receiptNo}</p>
+<p><strong>Tracking Number:</strong> ${trackingNo.slice(-5)}</p>
 
       <div class="section">
         <h3>Sender</h3>
