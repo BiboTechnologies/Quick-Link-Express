@@ -1,23 +1,25 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-storage.js";
-import { getDatabase, ref, remove, push, get, update, onValue, child, set } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
+import { getDatabase,  ref as dbRef, remove, push, get, update, onValue, child, set } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
 import { getAuth, onAuthStateChanged,sendPasswordResetEmail , signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js";
 const firebaseConfig = {
-    apiKey: "AIzaSyDSbltKm-73lbDezleJnhrFHL7JkwdmjGY",
-    authDomain: "quick-link-85301.firebaseapp.com",
-    projectId: "quick-link-85301",
-    storageBucket: "quick-link-85301.appspot.com",
-    messagingSenderId: "1092968079324",
-    appId: "1:1092968079324:web:2be1fed10f97e52708f919",
-    measurementId: "G-KHX6V80XJR"
+  apiKey: "AIzaSyAisBpwnYt14S4NiLbcOiAhdINsqwSYJiI",
+  authDomain: "aleveltv-75194.firebaseapp.com",
+  databaseURL: "https://aleveltv-75194-default-rtdb.firebaseio.com",
+  projectId: "aleveltv-75194",
+  storageBucket: "aleveltv-75194.appspot.com",
+  messagingSenderId: "440342498130",
+  appId: "1:440342498130:web:20e2eb670b1cb2c39cc88b",
+  measurementId: "G-VTR1KGT4CW"
   };
 
   const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
-const ordersRef = ref(database, 'orders');
+const ordersRef = dbRef(database, 'orders');
+
 
 
   // Variables to keep track of the order ID
@@ -25,7 +27,7 @@ const ordersRef = ref(database, 'orders');
 
   // Function to get the current order ID from Firebase
   function getCurrentOrderId() {
-      const ordersRef = ref(database, 'orders');
+      const ordersRef = dbRef(database, 'orders');
       get(ordersRef).then((snapshot) => {
           if (snapshot.exists()) {
               const orders = snapshot.val();
@@ -269,7 +271,7 @@ parcelForm.addEventListener('submit', (e) => {
     };
 
       // Save to Firebase
-      const ordersRef = ref(database, 'orders');
+      const ordersRef = dbRef(database, 'orders');
    push(ordersRef, parcelData)
   .then(() => {
     hideLoader(); // Hide loader after saving
@@ -338,13 +340,11 @@ onValue(ordersRef, (snapshot) => {
           <strong>Name:</strong> ${order.sender.name}<br>
           <strong>Address:</strong> ${order.sender.address}<br>
           <strong>Phone:</strong> ${order.sender.phone}<br>
-          <strong>Email:</strong> ${order.sender.email}
         </td>
         <td>
           <strong>Name:</strong> ${order.receiver.name}<br>
           <strong>Address:</strong> ${order.receiver.address}<br>
           <strong>Phone:</strong> ${order.receiver.phone}<br>
-          <strong>Email:</strong> ${order.receiver.email}
         </td>
         <td> ${order.parcelDetails.description}</td>
         <td> ${order.parcelDetails.weight}kg(s)</td>
@@ -353,16 +353,226 @@ onValue(ordersRef, (snapshot) => {
           ${status === 'not-paid' ? `<br><button class="pay-button" data-id="${order._key}">Pay</button>` : ''}
         </td>
         <td> ${new Date(order.timestamp).toLocaleString()}</td>
+
+
         <td>${deliveryHtml}</td>
+<td>
+  <button class="print-receipt-btn styled-btn" data-id="${order._key}">🖨️ Print</button>
+  <button class="view-details-btn styled-btn view-btn" data-id="${order._key}">👁️ View Details</button>
+</td>
+
+
+
       `;
       
       ordersTableBody.appendChild(row);
-  
+ row.querySelectorAll('.print-receipt-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    const orderId = button.getAttribute('data-id');
+    const order = ordersArray.find(o => o._key === orderId);
+    const receiptNo = order.orderId || order._key;
+    const trackingLink = `https://yourdomain.com/track?orderId=${receiptNo}`;
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Parcel Ticket - KWIK LINK XPRESS</title>
+          <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+          <style>
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              padding: 30px;
+              color: #2c3e50;
+              background-color: #fff;
+            }
+            .copy {
+              margin-bottom: 40px;
+            }
+            .header {
+              display: flex;
+              align-items: center;
+              border-bottom: 3px solid #007bff;
+              padding-bottom: 10px;
+              margin-bottom: 20px;
+            }
+            .header img {
+              height: 70px;
+            }
+            .header-text {
+              flex-grow: 1;
+              text-align: center;
+            }
+            .header-text h2 {
+              margin: 0;
+              font-size: 26px;
+              color: #007bff;
+              text-transform: uppercase;
+            }
+            .ticket-title {
+              text-align: center;
+              font-size: 20px;
+              font-weight: bold;
+              color: #000;
+              margin: 10px 0 20px;
+              padding: 5px;
+              border-top: 1px dashed #333;
+              border-bottom: 1px dashed #333;
+            }
+            .section {
+              margin-bottom: 20px;
+              border: 1px solid #e0e0e0;
+              border-left: 5px solid #007bff;
+              padding: 10px 15px;
+              border-radius: 4px;
+              background-color: #f9f9f9;
+            }
+            .section h3 {
+              margin-top: 0;
+              color: #007bff;
+              font-size: 16px;
+              border-bottom: 1px solid #ddd;
+              padding-bottom: 4px;
+              text-transform: uppercase;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 30px;
+              font-weight: bold;
+              font-size: 14px;
+              color: #333;
+            }
+            .footer span {
+              display: block;
+              font-size: 12px;
+              font-weight: normal;
+              color: #777;
+            }
+            .barcode, .qrcode {
+              text-align: center;
+              margin-top: 20px;
+            }
+            .divider {
+              border-top: 2px dashed #999;
+              margin: 40px 0;
+              text-align: center;
+              position: relative;
+            }
+            .divider:after {
+              content: 'CUT HERE';
+              position: absolute;
+              background: #fff;
+              padding: 0 10px;
+              top: -12px;
+              left: 50%;
+              transform: translateX(-50%);
+              font-size: 12px;
+              color: #555;
+            }
+          </style>
+        </head>
+        <body>
+          ${generateTicketHTML(receiptNo, order, trackingLink, 'Customer Copy')}
+          <div class="divider"></div>
+          ${generateTicketHTML(receiptNo, order, trackingLink, 'Office Copy')}
+
+          <script>
+            JsBarcode(".barcode-img", "${receiptNo}", {
+              format: "CODE128",
+              displayValue: true,
+              lineColor: "#000",
+              fontSize: 14,
+              height: 50,
+              margin: 5
+            });
+
+            new QRious({
+              element: document.getElementById("qr-${receiptNo}"),
+              value: "${trackingLink}",
+              size: 100,
+            });
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  });
+});
+function generateTicketHTML(receiptNo, order, trackingLink, copyLabel) {
+  return `
+    <div class="copy">
+      <div class="header">
+        <img src="kwik-link-xpress-high-resolution-logo-transparent.png" alt="KWIK LINK Logo">
+        <div class="header-text">
+          <h2>KWIK LINK XPRESS LIMITED</h2>
+          <p>Plot 12, Luwum Street, Kampala, Uganda</p>
+          <p>+256 754 142039 | +256 702 587589</p>
+          <p>info@kwiklinkxpress.com</p>
+        </div>
+      </div>
+
+      <div class="ticket-title">📦 PARCEL TICKET — <em>${copyLabel}</em></div>
+
+      <p><strong>Receipt Number:</strong> ${receiptNo}</p>
+
+      <div class="section">
+        <h3>Sender</h3>
+        <p>
+          <strong>Name:</strong> ${order.sender.name}<br>
+          <strong>Address:</strong> ${order.sender.address}<br>
+          <strong>Phone:</strong> ${order.sender.phone}
+        </p>
+      </div>
+
+      <div class="section">
+        <h3>Receiver</h3>
+        <p>
+          <strong>Name:</strong> ${order.receiver.name}<br>
+          <strong>Address:</strong> ${order.receiver.address}<br>
+          <strong>Phone:</strong> ${order.receiver.phone}
+        </p>
+      </div>
+
+      <div class="section">
+        <h3>Parcel Details</h3>
+        <p>
+          <strong>Description:</strong> ${order.parcelDetails.description}<br>
+          <strong>Weight:</strong> ${order.parcelDetails.weight} kg
+        </p>
+      </div>
+
+      <div class="section">
+        <h3>Payment & Status</h3>
+        <p>
+          <strong>Status:</strong> ${order.payment.status.toUpperCase()}<br>
+          <strong>Amount Paid:</strong> UGX ${order.payment.amount}<br>
+          <strong>Date:</strong> ${new Date(order.timestamp).toLocaleString()}
+        </p>
+      </div>
+
+      <div class="barcode">
+        <svg class="barcode-img"></svg>
+      </div>
+      <div class="qrcode">
+        <canvas id="qr-${receiptNo}"></canvas>
+        <p style="font-size: 12px; color: #555;">Scan to track your parcel</p>
+      </div>
+
+      <div class="footer">
+        Thank you for choosing KWIK LINK XPRESS
+        <span>This receipt was auto-generated. No signature required.</span>
+      </div>
+    </div>
+  `;
+}
+
 
       row.querySelectorAll('.pay-button').forEach(button => {
         button.addEventListener('click', () => {
           const orderId = button.getAttribute('data-id');
-          const paymentStatusRef = ref(database, `orders/${orderId}/payment/status`);
+          const paymentStatusRef = dbRef(database, `orders/${orderId}/payment/status`);
           set(paymentStatusRef, 'paid')
             .then(() => {
               alert(`Payment confirmed for order ${orderId}`);
@@ -374,12 +584,147 @@ onValue(ordersRef, (snapshot) => {
         });
       });
       
+document.querySelectorAll('.view-details-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    const orderId = button.getAttribute('data-id');
+    const order = ordersArray.find(o => o._key === orderId);
+
+    const detailsRef = dbRef(database, `orders/${orderId}/transportDetails`);
+    get(detailsRef).then(snapshot => {
+      let content = '';
+
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        content = '<h4>Transport Details:</h4>';
+
+        Object.entries(data).forEach(([key, detail]) => {
+          content += `
+            <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:5px;">
+              <p><strong>Driver Number:</strong> ${detail.driverName || 'Not set'}</p>
+              <p><strong>Number Plate:</strong> ${detail.plateNumber || 'Not set'}</p>
+              ${detail.receiptImage ? `
+                <p><strong>Receipt:</strong><br>
+  <img src="${detail.receiptImage}" 
+       style="width: 300px; height: auto; border: 1px solid #ccc; border-radius: 5px; display: block; margin-top: 8px;">
+  <a href="${detail.receiptImage}" 
+     download="receipt-${orderId}-${key}.jpg" 
+     style="display:inline-block; margin-top:8px; color:#1a73e8; text-decoration:underline;">
+    ⬇ Download Receipt
+  </a>
+</p>
+
+              ` : '<p>No receipt uploaded.</p>'}
+              <p><em>Added at: ${new Date(detail.addedAt).toLocaleString()}</em></p>
+
+              <button class="editDetailBtn" data-key="${key}" style="background-color: #e67e22; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer;">
+                ✏️ Edit This Detail
+              </button>
+            </div>
+          `;
+        });
+
+        // Store data reference for use in event listeners
+        const detailsData = data;
+
+        document.getElementById('viewModalHeader').textContent = `Details for This Order: ${order.sender.name} → ${order.receiver.name}`;
+        document.getElementById('viewDetailsContent').innerHTML = content;
+        document.getElementById('viewDetailsModal').style.display = 'block';
+
+        // Attach event listeners to all edit buttons
+        document.querySelectorAll('.editDetailBtn').forEach(editBtn => {
+          editBtn.addEventListener('click', () => {
+            const detailKey = editBtn.getAttribute('data-key');
+            const detailData = detailsData[detailKey];
+
+            // Close the details view modal
+            document.getElementById('viewDetailsModal').style.display = 'none';
+
+            // Prefill the edit form with existing data
+            document.getElementById('detailsOrderId').value = orderId;
+            document.getElementById('driverName').value = detailData.driverName || '';
+            document.getElementById('plateNumber').value = detailData.plateNumber || '';
+
+            // Save the key being edited for updating later
+            document.getElementById('detailsModal').setAttribute('data-edit-key', detailKey);
+
+            // Update modal header text
+            document.getElementById('modalOrderHeader').textContent = `Edit Transport Detail for Order: ${order.sender.name} → ${order.receiver.name}`;
+
+            // Show the edit modal
+            document.getElementById('detailsModal').style.display = 'block';
+          });
+        });
+
+      } else {
+        // No transport details found for this order
+        content = `
+          <p>No details found for this order.</p>
+          <button id="editDetailsBtn" style="background-color: #3498db; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+            ➕ Add Details
+          </button>
+        `;
+
+        document.getElementById('viewModalHeader').textContent = `Details for This Order: ${order.sender.name} → ${order.receiver.name}`;
+        document.getElementById('viewDetailsContent').innerHTML = content;
+        document.getElementById('viewDetailsModal').style.display = 'block';
+
+        // Handle Add Details button
+        const addBtn = document.getElementById('editDetailsBtn');
+        if (addBtn) {
+          addBtn.addEventListener('click', () => {
+            document.getElementById('viewDetailsModal').style.display = 'none';
+            document.getElementById('detailsOrderId').value = orderId;
+
+            // Clear edit key since this is a new entry
+            document.getElementById('detailsModal').removeAttribute('data-edit-key');
+
+            // Clear form inputs
+            document.getElementById('driverName').value = '';
+            document.getElementById('plateNumber').value = '';
+
+            document.getElementById('modalOrderHeader').textContent = `Add Transport Detail for Order: ${order.sender.name} → ${order.receiver.name}`;
+            document.getElementById('detailsModal').style.display = 'block';
+          });
+        }
+      }
+    });
+  });
+});
+document.getElementById('cancelTransportBtn').addEventListener('click', () => {
+  // Hide the details modal
+  document.getElementById('detailsModal').style.display = 'none';
+
+  // Clear the edit key attribute to reset the form state
+  document.getElementById('detailsModal').removeAttribute('data-edit-key');
+
+  // Clear input fields
+  document.getElementById('driverName').value = '';
+  document.getElementById('plateNumber').value = '';
+});
+
+
+document.querySelectorAll('.add-details-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    const orderId = button.getAttribute('data-id');
+    const order = ordersArray.find(o => o._key === orderId);
+
+    // Update form hidden value and show modal
+    document.getElementById('detailsOrderId').value = orderId;
+
+    // Set dynamic header
+    const headerText = `Add Details for This Order: ${order.sender.name} → ${order.receiver.name}`;
+    document.getElementById('modalOrderHeader').textContent = headerText;
+
+    document.getElementById('detailsModal').style.display = 'block';
+    console.log(orderId)
+  });
+});
 
       // Add event listener to "Mark as Delivered" buttons
 row.querySelectorAll('.mark-delivered').forEach(button => {
     button.addEventListener('click', () => {
       const orderId = button.getAttribute('data-id');
-      const deliveryRef = ref(database, `orders/${orderId}/deliveryStatus`);
+      const deliveryRef = dbRef(database, `orders/${orderId}/deliveryStatus`);
       set(deliveryRef, 'delivered')
         .then(() => {
           alert(`Order ${orderId} marked as delivered`);
@@ -415,7 +760,7 @@ document.getElementById('showRevenueBtn').addEventListener('click', () => {
     }
   });
 
-  const companyLogo = "snr-xpress-high-resolution-logo.png"; // Replace with your logo URL
+  const companyLogo = "kwik-link-xpress-high-resolution-logo.png"; // Replace with your logo URL
   const generatedAt = new Date().toLocaleString();
 
 const breakdownRows = Object.keys(dailyStats)
@@ -438,7 +783,7 @@ const breakdownRows = Object.keys(dailyStats)
     <img src="${companyLogo}" alt="Company Logo" style="height: 80px;">
     
     <div style="text-align: left;">
-      <h2 style="margin: 0;">SNR XPRESS LIMITED</h2>
+      <h2 style="margin: 0;">KWIK LINK XPRESS </h2>
       <p style="margin: 2px 0;">
         Plot 12, Luwum Street, Kampala, Uganda<br>
         Tel: +256 754 142039 | Email: info@snrxpress.com
@@ -628,10 +973,136 @@ function animateCountUp(el, target) {
     todaysIncomeElement.textContent = formattedToday;
   });
   
+// Place this once, not inside any function that runs repeatedly
+document.getElementById('saveTransportBtn').addEventListener('click', saveTransportDetails);
+
+async function saveTransportDetails() {
+  const orderId = document.getElementById('detailsOrderId').value;
+  const driverName = document.getElementById('driverName').value.trim();
+  const plateNumber = document.getElementById('plateNumber').value.trim();
+  const receiptFile = document.getElementById('receiptImage').files[0]; // optional
+
+  if (!orderId || !driverName || !plateNumber) {
+    alert("Please fill in all required fields.");
+    return;
+  }
+
+  const saveBtn = document.getElementById('saveTransportBtn');
+  saveBtn.disabled = true;
+
+  try {
+    let receiptUrl = '';
+
+    // Upload receipt if file is selected
+    if (receiptFile) {
+const storagePath = storageRef(storage, `receipts/${orderId}/${receiptFile.name}`);
+const snapshot = await uploadBytes(storagePath, receiptFile);
+
+      receiptUrl = await getDownloadURL(snapshot.ref);
+    }
+
+    const dataToSave = {
+      driverName,
+      plateNumber,
+      addedAt: new Date().toISOString(),
+    };
+
+    if (receiptUrl) {
+      dataToSave.receiptImage = receiptUrl;
+    }
+
+    // Check if editing existing detail
+    const editKey = document.getElementById('detailsModal').getAttribute('data-edit-key');
+
+    if (editKey) {
+      // Update existing detail
+      const detailRef = dbRef(database, `orders/${orderId}/transportDetails/${editKey}`);
+      await set(detailRef, dataToSave);
+      alert("Details updated successfully.");
+      document.getElementById('detailsModal').removeAttribute('data-edit-key');
+    } else {
+      // Add new detail
+      const detailsRef = dbRef(database, `orders/${orderId}/transportDetails`);
+      await push(detailsRef, dataToSave);
+      alert("Details saved successfully.");
+    }
+
+    // Reset form and close modal
+    document.getElementById('driverName').value = '';
+    document.getElementById('plateNumber').value = '';
+    document.getElementById('receiptImage').value = '';
+    document.getElementById('detailsModal').style.display = 'none';
+
+  } catch (error) {
+    console.error("Error saving transport details:", error);
+    alert("Something went wrong. Please try again.");
+  } finally {
+    saveBtn.disabled = false;
+  }
+}
 
 
+const senderList = document.getElementById("sender-list");
+const receiverList = document.getElementById("receiver-list");
 
+const senderName = document.getElementById("sender-name");
+const senderAddress = document.getElementById("sender-address");
+const senderPhone = document.getElementById("sender-phone");
+const senderEmail = document.getElementById("sender-email");
 
+const receiverName = document.getElementById("receiver-name");
+const receiverAddress = document.getElementById("receiver-address");
+const receiverPhone = document.getElementById("receiver-phone");
+const receiverEmail = document.getElementById("receiver-email");
+
+let senders = {};
+let receivers = {};
+
+// Load orders and extract sender/receiver info
+onValue(dbRef(database, 'orders'), snapshot => {
+  senders = {};
+  receivers = {};
+  senderList.innerHTML = '';
+  receiverList.innerHTML = '';
+
+  snapshot.forEach(child => {
+    const order = child.val();
+
+    if (order.sender?.name) {
+      senders[order.sender.name] = order.sender;
+      if (!senderList.querySelector(`option[value="${order.sender.name}"]`)) {
+        senderList.innerHTML += `<option value="${order.sender.name}">`;
+      }
+    }
+
+    if (order.receiver?.name) {
+      receivers[order.receiver.name] = order.receiver;
+      if (!receiverList.querySelector(`option[value="${order.receiver.name}"]`)) {
+        receiverList.innerHTML += `<option value="${order.receiver.name}">`;
+      }
+    }
+  });
+});
+
+// Auto-fill sender details
+senderName.addEventListener('change', () => {
+  const data = senders[senderName.value];
+  if (data) {
+    senderAddress.value = data.address || '';
+    senderPhone.value = data.phone || '';
+    senderEmail.value = data.email || '';
+  }
+});
+
+// Auto-fill receiver details
+receiverName.addEventListener('change', () => {
+  const data = receivers[receiverName.value];
+  if (data) {
+    receiverAddress.value = data.address || '';
+    receiverPhone.value = data.phone || '';
+    receiverEmail.value = data.email || '';
+  }
+});
   
 
 
