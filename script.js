@@ -400,7 +400,7 @@ const trackingLink = `https://bibotechnologies.github.io/Quick-Link-Express/trac
               margin-bottom: 20px;
             }
             .header img {
-              height: 70px;
+              height: 150px;
             }
             .header-text {
               flex-grow: 1;
@@ -508,7 +508,7 @@ function generateTicketHTML(receiptNo, order, trackingLink, copyLabel, trackingN
       <div class="header">
         <img src="kwik-link-xpress-high-resolution-logo.png" alt="KWIK LINK Logo">
         <div class="header-text">
-          <h2>KWIKLINK XPRESS LIMITED</h2>
+          <h2>KWIKLINK XPRESS </h2>
           <p>Plot 12, Luwum Street, Kampala, Uganda</p>
           <p>+256 754 142039 | +256 702 587589</p>
           <p>info@kwiklinkxpress.com</p>
