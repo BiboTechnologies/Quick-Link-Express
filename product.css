@@ -729,7 +729,7 @@ td strong {
   background: linear-gradient(135deg, #4CAF50, #2E7D32); /* green gradient */
   color: #fff;
   padding: 10px 10px;
-  font-size: 16px;
+  font-size: 12px;
   border: none;
   width: fit-content;
   border-radius: 8px;
@@ -1126,7 +1126,7 @@ td strong {
     color: white;
     border: none;
     padding: 10px 20px;
-    font-size: 15px;
+    font-size: 12px;
     border-radius: 8px;
     cursor: pointer;
     width: fit-content;

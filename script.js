@@ -586,7 +586,6 @@ function generateTicketHTML(receiptNo, order, trackingLink, copyLabel, trackingN
             });
         });
       });
-      
 document.querySelectorAll('.view-details-btn').forEach(button => {
   button.addEventListener('click', () => {
     const orderId = button.getAttribute('data-id');
@@ -598,33 +597,83 @@ document.querySelectorAll('.view-details-btn').forEach(button => {
 
       if (snapshot.exists()) {
         const data = snapshot.val();
-        content = '<h4>Transport Details:</h4>';
+        content = '<h4><i class="fas fa-truck"></i> Transport Details:</h4>';
 
         Object.entries(data).forEach(([key, detail]) => {
+          const companyName = "KwikLink Xpress";
+          const companyContact = "+256754152039";
+
+          const destination = order.receiver.address || "Not set";
+          const receiverName = order.receiver.name || "Not set";
+          const customerName = order.sender.name || "Not set";
+
+          const items = Array.isArray(order.parcelDetails.description)
+            ? order.parcelDetails.description.join(", ")
+            : (order.parcelDetails.description || "Not set");
+
+          const receiptLink = detail.receiptImage ? detail.receiptImage : "";
+
+          // Build WhatsApp message (emojis)
+          const message = encodeURIComponent(
+            `🌟 *Hello Mr/Mrs. ${customerName || ''}!* 👋\n\n` +
+            `✅ Here are your delivery details from *${companyName}*:\n\n` +
+            `📄 *Order Details:*\n` +
+            `🏠 Destination: ${destination}\n` +
+            `👤 Receiver: ${receiverName}\n` +
+            `📦 Items: ${items}\n\n` +
+            `🚚 *Transport Details:*\n` +
+            `🧑‍✈️ Driver: ${detail.driverName || 'Not set'}\n` +
+            `🚗 Plate Number: ${detail.plateNumber || 'Not set'}\n` +
+            (receiptLink ? `🧾 Receipt: ${receiptLink}\n` : '') +
+            `⏰ Added At: ${new Date(detail.addedAt).toLocaleString()}\n\n` +
+            `🙏 *Thank you for choosing ${companyName}!* 💖\n` +
+            `📞 For assistance, contact us at ${companyContact}.`
+          );
+
+          // Clean and format sender phone number
+          let senderPhone = (order.sender.phone || "").replace(/\D/g, "");
+          if (senderPhone.startsWith("0")) {
+            // Local format (e.g., 0700...)
+            senderPhone = "256" + senderPhone.substring(1);
+          } else if (!senderPhone.startsWith("256")) {
+            // Missing country code entirely
+            senderPhone = "256" + senderPhone;
+          }
+
+          const whatsappUrl = `https://wa.me/${senderPhone}?text=${message}`;
+
+          // Build HTML preview
           content += `
             <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:5px;">
-              <p><strong>Driver Number:</strong> ${detail.driverName || 'Not set'}</p>
-              <p><strong>Number Plate:</strong> ${detail.plateNumber || 'Not set'}</p>
-              ${detail.receiptImage ? `
-                <p><strong>Receipt:</strong><br>
-  <img src="${detail.receiptImage}" 
-       style="width: 300px; height: auto; border: 1px solid #ccc; border-radius: 5px; display: block; margin-top: 8px;">
-  <a href="${detail.receiptImage}" 
-     download="receipt-${orderId}-${key}.jpg" 
-     style="display:inline-block; margin-top:8px; color:#1a73e8; text-decoration:underline;">
-    ⬇ Download Receipt
-  </a>
-</p>
+              <p><i class="fas fa-id-card"></i> <strong>Driver:</strong> ${detail.driverName || 'Not set'}</p>
+              <p><i class="fas fa-car"></i> <strong>Plate Number:</strong> ${detail.plateNumber || 'Not set'}</p>
+              ${receiptLink ? `
+                <p><i class="fas fa-receipt"></i> <strong>Receipt:</strong><br>
+                  <img src="${receiptLink}" 
+                       style="width:300px; height:auto; border:1px solid #ccc; border-radius:5px; display:block; margin-top:8px;">
+                  <a href="${receiptLink}" 
+                     download="receipt-${orderId}-${key}.jpg"
+                     style="display:inline-block; margin-top:8px; color:#1a73e8; text-decoration:underline;">
+                    <i class="fas fa-download"></i> Download Receipt
+                  </a>
+                </p>
+              ` : '<p><i class="fas fa-ban"></i> No receipt uploaded.</p>'}
+              <p><i class="fas fa-clock"></i> <em>Added at: ${new Date(detail.addedAt).toLocaleString()}</em></p>
 
-              ` : '<p>No receipt uploaded.</p>'}
-              <p><em>Added at: ${new Date(detail.addedAt).toLocaleString()}</em></p>
-
-              <button class="editDetailBtn" data-key="${key}" style="background-color: #e67e22; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer;">
+              <button class="editDetailBtn" data-key="${key}"
+                style="background-color:#e67e22; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer;">
                 ✏️ Edit This Detail
               </button>
+
+              <a href="${whatsappUrl}" target="_blank"
+                style="display:inline-block; margin-top:8px; background-color:#25D366; color:white; padding:6px 12px; border-radius:5px; text-decoration:none;">
+                <i class="fab fa-whatsapp"></i> Message Sender on WhatsApp
+              </a>
             </div>
           `;
         });
+
+
 
         // Store data reference for use in event listeners
         const detailsData = data;
