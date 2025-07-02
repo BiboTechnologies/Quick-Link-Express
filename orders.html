@@ -13,6 +13,9 @@
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 />
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initAutocomplete">
+</script>
 
 </head>
 <body>
@@ -216,9 +219,9 @@ background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px; bo
 <label for="sender-name">Full Name:</label>
 <input type="text" id="sender-name" name="sender-name" list="sender-list" required>
 <datalist id="sender-list"></datalist>
-                          <label for="sender-address">Address:</label>
-                          <textarea id="sender-address" name="sender-address" required></textarea>
-          
+<label for="sender-address">Sender Address:</label>
+<input id="sender-address" name="sender-address" type="text" required style="width: 100%; padding: 8px;"/>
+
                           <label for="sender-phone">Phone Number:</label>
                           <input type="tel" id="sender-phone" name="sender-phone" required>
           
@@ -234,9 +237,10 @@ background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px; bo
 <label for="receiver-name">Full Name:</label>
 <input type="text" id="receiver-name" name="receiver-name" list="receiver-list" required>
 <datalist id="receiver-list"></datalist>
-                          <label for="receiver-address">Address:</label>
-                          <textarea id="receiver-address" name="receiver-address" required></textarea>
-          
+                     
+<label for="receiver-address">Receiver Address:</label>
+<input id="receiver-address" name="receiver-address" type="text" required style="width: 100%; padding: 8px;"/>
+
                           <label for="receiver-phone">Phone Number:</label>
                           <input type="tel" id="receiver-phone" name="receiver-phone" required>
           
