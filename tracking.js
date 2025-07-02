@@ -87,18 +87,20 @@ snapshot.forEach(childSnapshot => {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
         color: #333;
       ">
-      ${(foundOrder.sender?.lat && foundOrder.sender?.lng && foundOrder.destination?.lat && foundOrder.destination?.lng) ? `
-  <section style="margin-bottom: 25px;">
-    <h4 style="color: #0056b3; border-bottom: 1px solid #ddd; padding-bottom: 6px;">Delivery Route</h4>
-    <div id="leafletMap" style="width: 100%; height: 400px; border-radius: 8px;"></div>
-  </section>
-` : ''}
+
 
         <h3 style="color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px; margin-bottom: 20px;">
           Order Details — <span style="font-weight: normal; color: #555;">Order ID #${foundOrder.orderId}</span>
         </h3>
 
         <section style="margin-bottom: 25px;">
+        
+        ${(foundOrder.sender?.lat && foundOrder.sender?.lng && foundOrder.destination?.lat && foundOrder.destination?.lng) ? `
+  <section style="margin-bottom: 25px;">
+    <h4 style="color: #0056b3; border-bottom: 1px solid #ddd; padding-bottom: 6px;">Delivery Route</h4>
+    <div id="leafletMap" style="width: 100%; height: 400px; border-radius: 8px;"></div>
+  </section>
+` : ''}
           <h4 style="color: #0056b3; border-bottom: 1px solid #ddd; padding-bottom: 6px;">Delivery Status</h4>
           <p style="font-size: 16px; font-weight: 600; color: ${getDeliveryStatusColor(foundOrder.deliveryStatus)};">
             ${foundOrder.deliveryStatus || 'IN TRANSIT'}
