@@ -1,453 +1,313 @@
 <!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>KWIK LINK XPRESS </title>
-  <link href="kwik-link-transparent.png" rel="icon">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,600" /><link rel="stylesheet" href="https://public.codepenassets.com/css/reset-2.0.min.css">
-<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css'>
-<link rel='stylesheet' href='https://cdn.jsdelivr.net/jquery.selectric/1.10.1/selectric.css'>
-<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css'><link rel="stylesheet" href="./style.css">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-/>
-<script async
-  src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initAutocomplete">
-</script>
-
-</head>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+  <title>Quick Link Express </title>
+    <!--<title> Responsive Sidebar Menu  | CodingLab </title>-->
+    <link rel="stylesheet" href="style.css">
+    <!-- Boxicons CDN Link -->
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="./style.css">
+     <link rel="stylesheet" href="./orders.css">
+     <link href="quick-link-express-favicon-color.png" rel="icon">
+     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+   
+   </head>
 <body>
-<!-- partial:index.partial.html -->
-<nav class="navbar navbar-dark sticky-top flex-md-nowrap p-0">
-	<a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">KWIK LINK XPRESS </a>
-	<input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
-	<ul class="navbar-nav px-3">
-		<li class="nav-item text-nowrap">
-			<a class="nav-link" href="#">Sign out</a>
-		</li>
-	</ul>
-</nav>
-<div class="container-fluid">
-	<div class="row">
-		<nav class="col-md-2 d-none d-md-block sidebar">
-			<div class="sidebar-sticky">
-				<ul class="nav flex-column">
-					<li class="nav-item">
-						<a class="nav-link" href="index.html">
-                  <i class="zmdi zmdi-widgets"></i>
-                  Dashboard <span class="sr-only">(current)</span>
-                </a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link active" href="orders.html">
-                  <i class="zmdi zmdi-file-text"></i>
-                  Orders
-                </a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="products.html">
-                  <i class="zmdi zmdi-shopping-cart"></i>
-                  Products
-                </a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">
-                  <i class="zmdi zmdi-accounts"></i>
-                  Customers
-                </a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">
-                  <i class="zmdi zmdi-chart"></i>
-                  Reports
-                </a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">
-                  <i class="zmdi zmdi-layers"></i>
-                  Integrations
-                </a>
-					</li>
-				</ul>
-
-				<h6 class="sidebar-heading d-flex justify-content-between align-items-center pl-3 mt-4 mb-1 text-muted">
-					<span>Saved reports</span>
-					<a class="d-flex align-items-center text-muted" href="#">
-						<i class="zmdi zmdi-plus-circle-o"></i>
-					</a>
-				</h6>
-				<ul class="nav flex-column mb-2">
-					<li class="nav-item">
-						<a class="nav-link" href="#">
-                  <i class="zmdi zmdi-file-text"></i>
-                  Current month
-                </a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">
-                  <i class="zmdi zmdi-file-text"></i>
-                  Last quarter
-                </a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">
-                  <i class="zmdi zmdi-file-text"></i>
-                  Social engagement
-                </a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">
-                  <i class="zmdi zmdi-file-text"></i>
-                  Year-end sale
-                </a>
-					</li>
-				</ul>
-			</div>
-		</nav>
-
-		<main role="main" class="col-md-9 ml-sm-auto col-lg-10 my-3">
-      <div class="logo-container">
-        <img src="kwik-link-transparent.png" alt="Company Logo" class="logo-image">
-      </div>
-      
-			<div class="card-list">
-				<div class="row">
-					<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
-						<div class="card blue">
-              <div class="title">All Orders</div>
-              <i class="zmdi zmdi-upload"></i>
-              <div class="value" id="order-count">0</div>
-              <div class="stat"><b>13</b>% increase</div>
-            </div>
-            
-					</div>
-
-	<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
-						<div class="card orange">
-              <div class="title">Over-all Income</div>
-              <i class="zmdi zmdi-download"></i>
-              <div class="value" id="total-income">UGX 0</div>
-              <div class="stat"><b>13</b>% decrease</div>
-            </div>
-            
-					</div>
-
-					<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
-            <div class="card green">
-              <div class="title">Today's income</div>
-              <i class="zmdi zmdi-upload"></i>
-              <div class="value" id="todays-income">UGX 0</div>
-              <div class="stat"><b>4</b>% increase</div>
-            </div>
-            
-					</div>
-				
-					<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
-						<div class="card red">
-              <div class="title">Not Paid Total</div>
-              <i class="zmdi zmdi-download"></i>
-              <div class="value" id="not-paid-total">UGX 0</div>
-              <div class="stat"><b>13</b>% decrease</div>
-            </div>
-            
-					</div>
-				</div>
-			</div>
-<div id="viewDetailsModal" style="display: none;">
-  <h3 id="viewModalHeader">Parcel Transport Details</h3> 
-<button 
-  onclick="document.getElementById('viewDetailsModal').style.display='none'" 
-  style="
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    font-size: 14px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  "
-  onmouseover="this.style.backgroundColor='#c0392b';"
-  onmouseout="this.style.backgroundColor='#e74c3c';"
->
-  ✖ Close
-</button>
-
-  <div id="viewDetailsContent">
-    <!-- Filled dynamically -->
+  <div class="sidebar">
+    <div class="logo-details">
+      <i class='bx bxl-c-plus-plus icon'></i>
+        <div class="logo_name">Quick Link</div>
+        <i class='bx bx-menu' id="btn" ></i>
+    </div>
+    <ul class="nav-list">
+      <li>
+          <i class='bx bx-search' ></i>
+         <input type="text" placeholder="Search...">
+         <span class="tooltip">Search</span>
+      </li>
+      <li>
+        <a href="#">
+          <i class='bx bx-grid-alt'></i>
+          <span class="links_name">Dashboard</span>
+        </a>
+         <span class="tooltip">Dashboard</span>
+      </li>
+      <li>
+       <a href="#">
+         <i class='bx bx-user' ></i>
+         <span class="links_name">User</span>
+       </a>
+       <span class="tooltip">User</span>
+     </li>
+     <li>
+       <a href="#">
+         <i class='bx bx-chat' ></i>
+         <span class="links_name">Messages</span>
+       </a>
+       <span class="tooltip">Messages</span>
+     </li>
+     <li>
+       <a href="analytics.html">
+         <i class='bx bx-pie-chart-alt-2' ></i>
+         <span class="links_name">Analytics</span>
+       </a>
+       <span class="tooltip">Analytics</span>
+     </li>
+     <li>
+       <a href="#">
+         <i class='bx bx-folder' ></i>
+         <span class="links_name">File Manager</span>
+       </a>
+       <span class="tooltip">Files</span>
+     </li>
+     <li>
+       <a href="orders.html">
+         <i class='bx bx-cart-alt' ></i>
+         <span class="links_name">Orders</span>
+       </a>
+       <span class="tooltip">Orders</span>
+     </li>
+     <li>
+       <a href="#">
+         <i class='bx bx-heart' ></i>
+         <span class="links_name">Saved</span>
+       </a>
+       <span class="tooltip">Saved</span>
+     </li>
+     <li>
+       <a href="#">
+         <i class='bx bx-cog' ></i>
+         <span class="links_name">Setting</span>
+       </a>
+       <span class="tooltip">Setting</span>
+     </li>
+     <li class="profile">
+         <div class="profile-details">
+           <!--<img src="profile.jpg" alt="profileImg">-->
+           <div class="name_job">
+             <div class="name">Prem Shahi</div>
+             <div class="job">Web designer</div>
+           </div>
+         </div>
+         <i class='bx bx-log-out' id="log_out" ></i>
+     </li>
+    </ul>
   </div>
-</div>
-<div id="detailsModal" style="display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
-background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.2); z-index: 1000; max-width: 400px;">
-  <h3>Add Parcel Transport Details</h3>
-  <h3 id="modalOrderHeader" style="text-align: center; color: #2C3E50;"></h3>
+  <section class="home-section">
+      <div class="text">Quick Link Express</div>
+      <div class="container">
+        <h2>Parcel Registration Form</h2>
+        <p><strong># Order ID: <span id="order-id">Loading...</span></strong></p>
+        <form id="parcelForm">
+            <!-- Sender Information -->
+            <fieldset>
+                <legend>Sender Information</legend>
+                <label for="sender-name">Full Name:</label>
+                <input type="text" id="sender-name" name="sender-name" required>
 
-  <input type="hidden" id="detailsOrderId">
+                <label for="sender-address">Address:</label>
+                <textarea id="sender-address" name="sender-address" required></textarea>
 
-  <label for="driverName">Driver Name / Number:</label><br>
-  <input type="text" id="driverName" style="width: 100%; padding: 8px; box-sizing: border-box;"><br><br>
+                <label for="sender-phone">Phone Number:</label>
+                <input type="tel" id="sender-phone" name="sender-phone" required>
 
-  <label for="plateNumber">Number Plate:</label><br>
-  <input type="text" id="plateNumber" style="width: 100%; padding: 8px; box-sizing: border-box;"><br><br>
+                <label for="sender-email">Email (Optional):</label>
+                <input type="email" id="sender-email" name="sender-email">
+            </fieldset>
 
-  <label for="receiptImage">Upload Receipt (optional):</label><br>
-  <input type="file" id="receiptImage" accept="image/*" style="width: 100%;"><br><br>
+            <!-- Receiver Information -->
+            <fieldset>
+                <legend>Receiver Information</legend>
+                <label for="receiver-name">Full Name:</label>
+                <input type="text" id="receiver-name" name="receiver-name" required>
 
-  <button id="saveTransportBtn" style="background-color: #28a745; color: white; padding: 10px 20px; border:none; border-radius: 5px; cursor: pointer; margin-right: 10px;">Save</button>
-  <button id="cancelTransportBtn" style="background-color: #dc3545; color: white; padding: 10px 20px; border:none; border-radius: 5px; cursor: pointer;">Cancel</button>
-</div>
+                <label for="receiver-address">Address:</label>
+                <textarea id="receiver-address" name="receiver-address" required></textarea>
+
+                <label for="receiver-phone">Phone Number:</label>
+                <input type="tel" id="receiver-phone" name="receiver-phone" required>
+
+                <label for="receiver-email">Email (Optional):</label>
+                <input type="email" id="receiver-email" name="receiver-email">
+            </fieldset>
+
+            <!-- Parcel Details -->
+            <fieldset>
+                <legend>Parcel Details</legend>
+                <label for="parcel-desc">Description of Contents:</label>
+                <input type="text" id="parcel-desc" name="parcel-desc" required>
+
+                <label for="parcel-weight">Weight (kg):</label>
+                <input type="number" id="parcel-weight" name="parcel-weight" required>
+            </fieldset>
+
+            <!-- Payment Information -->
+            <fieldset>
+                <legend>Payment Information</legend>
+                <label>Payment Status:</label>
+                <label>
+                    <input type="radio" name="payment-status" value="paid" required> Paid
+                </label>
+                <label>
+                    <input type="radio" name="payment-status" value="not-paid" required> Not Paid
+                </label>
+
+                <label for="amount">Amount to be Paid (UGX ):</label>
+                <input type="number" id="amount" name="amount" required>
+            </fieldset>
+
+            <button type="submit">Submit</button>
+        </form>
 
 
-<button id="showRevenueBtn">Show Revenue Report</button>
-<p id="revenueReport" style="margin-top: 10px; font-weight: bold;"></p>
 
-      <button id="toggle-section-btn">Parcel Panel</button>
+        <!-- Loader and Overlay -->
+        <div id="overlay">
+            <div id="loader"></div>
+        </div>
 
-      <section class="home-section" style="display: none;">
-                <div class="text">KWIK LINK XPRESS </div>
-                <div class="container">
-                  <h2>Parcel Registration Form</h2>
-                  <p><strong># Order ID: <span id="order-id">Loading...</span></strong></p>
-                  <form id="parcelForm">
-                      <!-- Sender Information -->
-                      <fieldset>
-                          <legend>Sender Information</legend>
-<!-- Sender Name -->
-<label for="sender-name">Full Name:</label>
-<input type="text" id="sender-name" name="sender-name" list="sender-list" required>
-<datalist id="sender-list"></datalist>
-<label for="sender-address">Sender Address:</label>
-<input id="sender-address" name="sender-address" type="text" required style="width: 100%; padding: 8px;"/>
+        <!-- Success Message -->
+        <div id="success-message">Parcel registered successfully!</div>
 
-                          <label for="sender-phone">Phone Number:</label>
-                          <input type="tel" id="sender-phone" name="sender-phone" required>
-          
-                          <label for="sender-email">Email (Optional):</label>
-                          <input type="email" id="sender-email" name="sender-email">
-                      </fieldset>
-          
-                      <!-- Receiver Information -->
-                      <fieldset>
-                          <legend>Receiver Information</legend>
-
-<!-- Receiver Name -->
-<label for="receiver-name">Full Name:</label>
-<input type="text" id="receiver-name" name="receiver-name" list="receiver-list" required>
-<datalist id="receiver-list"></datalist>
-                     
-<label for="receiver-address">Receiver Address:</label>
-<input id="receiver-address" name="receiver-address" type="text" required style="width: 100%; padding: 8px;"/>
-
-                          <label for="receiver-phone">Phone Number:</label>
-                          <input type="tel" id="receiver-phone" name="receiver-phone" required>
-          
-                          <label for="receiver-email">Email (Optional):</label>
-                          <input type="email" id="receiver-email" name="receiver-email">
-                      </fieldset>
-          
-                      <!-- Parcel Details -->
-                      <fieldset>
-                          <legend>Parcel Details</legend>
-                          <label for="parcel-desc">Description of Contents:</label>
-                          <input type="text" id="parcel-desc" name="parcel-desc" required>
-          
-                          <label for="parcel-weight">Weight (kg):</label>
-                          <input type="number" id="parcel-weight" name="parcel-weight" required>
-                      </fieldset>
-          
-                      <!-- Payment Information -->
-                      <fieldset>
-                          <legend>Payment Information</legend>
-                          <label>Payment Status:</label>
-                          <label>
-                              <input type="radio" name="payment-status" value="paid" required> Paid
-                          </label>
-                          <label>
-                              <input type="radio" name="payment-status" value="not-paid" required> Not Paid
-                          </label>
-          
-                          <label for="amount">Amount to be Paid (UGX ):</label>
-                          <input type="number" id="amount" name="amount" required>
-                      </fieldset>
-          
-                      <button type="submit">Submit</button>
-                  </form>
-          
-          
-          
-                  <!-- Loader and Overlay -->
-                  <div id="overlay">
-                      <div id="loader"></div>
-                  </div>
-          
-                  <!-- Success Message -->
-                  <div id="success-message">Parcel registered successfully!</div>
-                  <div id="order-details-popup" class="popup-overlay" style="display: none;">
-                    <div class="popup-content">
-                      <span id="close-popup" class="close">&times;</span>
-                      <h3>Order Details</h3>
-                      <div id="popup-body"></div>
-                    </div>
-                  </div>
-                  
-                  <style>
-                    .popup-overlay {
-                      position: fixed;
-                      z-index: 10000;
-                      top: 0; left: 0;
-                      width: 100%; height: 100%;
-                      background: rgba(0, 0, 0, 0.6);
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                    }
-                  
-                    .popup-content {
-                      background: #fff;
-                      padding: 20px;
-                      border-radius: 12px;
-                      max-width: 600px;
-                      width: 90%;
-                      position: relative;
-                    }
-                  
-                    .close {
-                      position: absolute;
-                      top: 10px; right: 15px;
-                      font-size: 24px;
-                      
-                      cursor: pointer;
-                    }
-                  </style>
-                  
-             <!-- Modal Background -->
-          <div id="modal" >
-              <div class="container">
-                  <!-- Customer Copy -->
-                  <div id="receipt-customer" class="receipt">
-                      <div id="receipt-header">
-                          <img src="kwik-link-transparent.png" alt="Express Logo" id="receipt-logo">
-                          <div id="company-details">
-                              <h4>KWIK LINK XPRESS </h4>
-                              <p>Kampala, Uganda</p>
-                              <p>Email: snrxpresslimited@gmail.com</p>
-                              <p>Phone: +256 754 142 039 || +256 702 587 589</p>
-                          </div>
-                      </div>
-                      
-                      <h3 style="text-align: center;">Parcel Receipt (Customer Copy)</h3>
-                      
-                      <p><strong>Order ID:</strong> <span id="receipt-order-id"></span></p>
-                      <p><strong>Date:</strong> <span id="receipt-date"></span></p>
-                      <p><strong>Sender Name:</strong> <span id="receipt-sender-name"></span></p>
-                      <p><strong>Receiver Name:</strong> <span id="receipt-receiver-name"></span></p>
-                      <p><strong>Description:</strong> <span id="receipt-parcel-desc"></span></p>
-                      <p><strong>Weight:</strong> <span id="receipt-parcel-weight"></span> kg</p>
-                      <p><strong>Payment Status:</strong> <span id="receipt-payment-status"></span></p>
-                      <p><strong>Amount Paid:</strong> UGX <span id="receipt-amount"></span></p>
-          
-                      <hr>
-          
-                      <div id="company-footer">
-                          <p>Thank you for using QKWIK LINK XPRESS !</p>
-                          <p>We appreciate your business.</p>
-                      </div>
-                      
-                      <div id="powered-by">
-                          <p>Powered by Bibo Technologies</p>
-                          <img src="BB.png" alt="Bibo Technologies Logo" style="width: 100px;">
-                      </div>
-                  </div>
-          
-                  <!-- Company Copy -->
-                  <div id="receipt-company" class="receipt" style="display: none;">
-                      <div id="receipt-header">
-                          <img src="logo-no-background.png" alt="Express Logo" id="receipt-logo">
-                          <div id="company-details">
-                              <h4>KWIK LINK XPRESS </h4>
-                              <p>123 Delivery Lane, Suite 100</p>
-                              <p>Kampala, Uganda</p>
-                              <p>Email: support@snrxpress.com</p>
-                              <p>Phone: +256 774 050 825</p>
-                          </div>
-                      </div>
-                      
-                      <h3 style="text-align: center;">Parcel Receipt (Company Copy)</h3>
-                      
-                      <p><strong>Order ID:</strong> <span id="receipt-order-id-company"></span></p>
-                      <p><strong>Date:</strong> <span id="receipt-date-company"></span></p>
-                      <p><strong>Sender Name:</strong> <span id="receipt-sender-name-company"></span></p>
-                      <p><strong>Receiver Name:</strong> <span id="receipt-receiver-name-company"></span></p>
-                      <p><strong>Description:</strong> <span id="receipt-parcel-desc-company"></span></p>
-                      <p><strong>Weight:</strong> <span id="receipt-parcel-weight-company"></span> kg</p>
-                      <p><strong>Payment Status:</strong> <span id="receipt-payment-status-company"></span></p>
-                      <p><strong>Amount Paid:</strong> UGX <span id="receipt-amount-company"></span></p>
-          
-                      <hr>
-          
-                      <div id="company-footer">
-                          <p>Thank you for using KWIK LINK XPRESS !</p>
-                          <p>We appreciate your business.</p>
-                      </div>
-                      
-                      <div id="powered-by">
-                          <p>Powered by Bibo Technologies</p>
-                          <img src="BB.png" alt="Bibo Technologies Logo" style="width: 100px;">
-                      </div>
-                  </div>
-          
-                  <button id="print-receipt-btn" style="display: none;">Print Receipt</button>
-              </div>
-          </div>
-          
-              </div>
-          
-            </section>
-            <div style="overflow-x: auto;">
-              <table id="orders-table"> ... </table>
-            
-            <table id="orders-table" border="1">
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Sender</th>
-                  <th>Receiver</th>
-                  <th>Parcel Description</th>
-                  <th>Weight</th>
-                  <th>Payment Status</th>   
-                  <th>Timestamp</th>
-                  <th>Deliery Status</th>
-                                    <th>Actions</th>
-
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+   <!-- Modal Background -->
+<div id="modal" >
+    <div class="container">
+        <!-- Customer Copy -->
+        <div id="receipt-customer" class="receipt">
+            <div id="receipt-header">
+                <img src="logo-color.png" alt="Express Logo" id="receipt-logo">
+                <div id="company-details">
+                    <h4>QUICK LINK EXPRESS</h4>
+                    <p>Kampala, Uganda</p>
+                    <p>Email: quicklinkexpressltd@gmail.com</p>
+                    <p>Phone: +256 754 142 039 || +256 702 587 589</p>
+                </div>
             </div>
-
             
-</main>
+            <h3 style="text-align: center;">Parcel Receipt (Customer Copy)</h3>
+            
+            <p><strong>Order ID:</strong> <span id="receipt-order-id"></span></p>
+            <p><strong>Date:</strong> <span id="receipt-date"></span></p>
+            <p><strong>Sender Name:</strong> <span id="receipt-sender-name"></span></p>
+            <p><strong>Receiver Name:</strong> <span id="receipt-receiver-name"></span></p>
+            <p><strong>Description:</strong> <span id="receipt-parcel-desc"></span></p>
+            <p><strong>Weight:</strong> <span id="receipt-parcel-weight"></span> kg</p>
+            <p><strong>Payment Status:</strong> <span id="receipt-payment-status"></span></p>
+            <p><strong>Amount Paid:</strong> UGX <span id="receipt-amount"></span></p>
+
+            <hr>
+
+            <div id="company-footer">
+                <p>Thank you for using Quick Link Express!</p>
+                <p>We appreciate your business.</p>
+            </div>
+            
+            <div id="powered-by">
+                <p>Powered by Bibo Technologies</p>
+                <img src="BB.png" alt="Bibo Technologies Logo" style="width: 100px;">
+            </div>
+        </div>
+
+        <!-- Company Copy -->
+        <div id="receipt-company" class="receipt" style="display: none;">
+            <div id="receipt-header">
+                <img src="logo-no-background.png" alt="Express Logo" id="receipt-logo">
+                <div id="company-details">
+                    <h4>QUICK LINK EXPRESS</h4>
+                    <p>123 Delivery Lane, Suite 100</p>
+                    <p>Kampala, Uganda</p>
+                    <p>Email: support@quicklinkexpress.com</p>
+                    <p>Phone: +256 774 050 825</p>
+                </div>
+            </div>
+            
+            <h3 style="text-align: center;">Parcel Receipt (Company Copy)</h3>
+            
+            <p><strong>Order ID:</strong> <span id="receipt-order-id-company"></span></p>
+            <p><strong>Date:</strong> <span id="receipt-date-company"></span></p>
+            <p><strong>Sender Name:</strong> <span id="receipt-sender-name-company"></span></p>
+            <p><strong>Receiver Name:</strong> <span id="receipt-receiver-name-company"></span></p>
+            <p><strong>Description:</strong> <span id="receipt-parcel-desc-company"></span></p>
+            <p><strong>Weight:</strong> <span id="receipt-parcel-weight-company"></span> kg</p>
+            <p><strong>Payment Status:</strong> <span id="receipt-payment-status-company"></span></p>
+            <p><strong>Amount Paid:</strong> UGX <span id="receipt-amount-company"></span></p>
+
+            <hr>
+
+            <div id="company-footer">
+                <p>Thank you for using Quick Link Express!</p>
+                <p>We appreciate your business.</p>
+            </div>
+            
+            <div id="powered-by">
+                <p>Powered by Bibo Technologies</p>
+                <img src="BB.png" alt="Bibo Technologies Logo" style="width: 100px;">
+            </div>
+        </div>
+
+        <button id="print-receipt-btn" style="display: none;">Print Receipt</button>
     </div>
 </div>
-<div id="order-details-popup" class="popup-overlay" style="display: none;">
-  <div class="popup-content">
-    <span id="close-popup" class="close">&times;</span>
-    <h3>Order Details</h3>
-    <div id="popup-body"></div>
-  </div>
-</div>
 
+    </div>
+
+  </section>
+  <div style="overflow-x: auto;">
+    <table id="orders-table"> ... </table>
+  
+  <table id="orders-table" border="1">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Sender</th>
+        <th>Receiver</th>
+        <th>Parcel Description</th>
+        <th>Weight</th>
+        <th>Payment Status</th>
+        <th>Amount</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  </div>
+  
+
+
+<script type="module" src="orders.js"></script>
+
+
+  <script>
+  let sidebar = document.querySelector(".sidebar");
+  let closeBtn = document.querySelector("#btn");
+  let searchBtn = document.querySelector(".bx-search");
+
+  closeBtn.addEventListener("click", ()=>{
+    sidebar.classList.toggle("open");
+    menuBtnChange();//calling the function(optional)
+  });
+
+  searchBtn.addEventListener("click", ()=>{ // Sidebar open when you click on the search iocn
+    sidebar.classList.toggle("open");
+    menuBtnChange(); //calling the function(optional)
+  });
+
+  // following are the code to change sidebar button(optional)
+  function menuBtnChange() {
+   if(sidebar.classList.contains("open")){
+     closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");//replacing the iocns class
+   }else {
+     closeBtn.classList.replace("bx-menu-alt-right","bx-menu");//replacing the iocns class
+   }
+  }
+
+  
+  </script>
 </body>
 </html>
 <!-- partial -->
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js'></script>
-<script src='https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js'></script>
-<script src='https://cdn.jsdelivr.net/jquery.selectric/1.10.1/jquery.selectric.min.js'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js'></script><script type="module"  src="./script.js"></script>
-
+  
 </body>
 </html>

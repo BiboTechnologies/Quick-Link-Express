@@ -17,6 +17,7 @@ const firebaseConfig = {
 const database = getDatabase(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
+const ordersRef = ref(database, 'orders');
 
 
   // Variables to keep track of the order ID
@@ -287,6 +288,40 @@ parcelForm.addEventListener('submit', (e) => {
           });
   });
 
+
+  
+onValue(ordersRef, (snapshot) => {
+    const ordersTableBody = document.querySelector('#orders-table tbody');
+    ordersTableBody.innerHTML = ''; // Clear table before repopulating
+
+    snapshot.forEach((childSnapshot) => {
+        const order = childSnapshot.val();
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${order.orderId || 'N/A'}</td>
+            <td>
+                Name: ${order.sender.name}<br>
+                Address: ${order.sender.address}<br>
+                Phone: ${order.sender.phone}<br>
+                Email: ${order.sender.email}
+            </td>
+            <td>
+                Name: ${order.receiver.name}<br>
+                Address: ${order.receiver.address}<br>
+                Phone: ${order.receiver.phone}<br>
+                Email: ${order.receiver.email}
+            </td>
+            <td>${order.parcelDetails.description}</td>
+            <td>${order.parcelDetails.weight}</td>
+            <td>${order.payment.status}</td>
+            <td>${order.payment.amount}</td>
+            <td>${new Date(order.timestamp).toLocaleString()}</td>
+        `;
+
+        ordersTableBody.appendChild(row);
+    });
+});
 
 
 

@@ -258,3 +258,46 @@ button:hover {
     position: relative;
     margin: 50px auto; /* Center it vertically with margin */
 }
+
+
+#orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    background-color: #f9f9f9;
+  }
+  
+  #orders-table th, #orders-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  
+  #orders-table th {
+    background-color: #4CAF50;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+  
+  #orders-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  #orders-table tr:hover {
+    background-color: #e9ffe9;
+  }
+  
+  @media screen and (max-width: 768px) {
+    #orders-table {
+      font-size: 12px;
+    }
+  
+    #orders-table th, #orders-table td {
+      padding: 6px;
+    }
+  }
+  
