@@ -22,43 +22,43 @@ const ordersRef = dbRef(database, 'orders');
 
 
 
-  // Variables to keep track of the order ID
-  let currentOrderId = 1;
-// Function to get the current order ID from Firebase with retry
 async function getCurrentOrderId(retryInterval = 500) {
   const ordersRef = dbRef(database, 'orders');
-  let currentOrderId = 1; // default if no orders exist
+  let currentOrderId;
 
-  while (true) { // keep retrying until successful
+  while (true) { // retry until successful
     try {
       const snapshot = await get(ordersRef);
 
       if (snapshot.exists()) {
         const orders = snapshot.val();
-        const orderIds = Object.keys(orders)
-          .map(key => Number(orders[key].orderId))
-          .filter(num => !isNaN(num));
+
+        // Extract numeric orderIds
+        const orderIds = Object.values(orders)
+          .map(o => Number(o.orderId))
+          .filter(n => !isNaN(n));
 
         if (orderIds.length > 0) {
-          currentOrderId = Math.max(...orderIds) + 1;
+          currentOrderId = Math.max(...orderIds) + 1; // next available ID
         } else {
-          currentOrderId = 1; // no valid order IDs yet
+          currentOrderId = 1;
         }
       } else {
-        currentOrderId = 1; // no orders exist yet
+        currentOrderId = 1;
       }
 
       document.getElementById('order-id').textContent = currentOrderId;
-      return currentOrderId; // stop retrying
+      return currentOrderId;
     } catch (error) {
       console.error("Error retrieving order ID, retrying...", error);
-      await new Promise(res => setTimeout(res, retryInterval)); // wait before retrying
+      await new Promise(res => setTimeout(res, retryInterval));
     }
   }
 }
 
 // Run when page loads
 getCurrentOrderId();
+
 
 
 
