@@ -666,6 +666,8 @@ if (receipt.items && receipt.items.length > 0) {
 function updateNavButtons() {
   prevBtn.disabled = currentIndex <= 0;
   nextBtn.disabled = currentIndex >= receiptList.length;
+  jumpToLatestBtn.disabled = currentIndex >= receiptList.length - 1;
+
 }
 
 nextBtn.addEventListener('click', () => {
@@ -684,6 +686,20 @@ nextBtn.addEventListener('click', () => {
     // Reached last item — now move to "new receipt" mode
     currentIndex++;
     clearReceiptInputs(); // simulate new receipt
+  }
+
+  updateNavButtons();
+});
+const jumpToLatestBtn = document.getElementById('jumpToLatestBtn');
+
+jumpToLatestBtn.addEventListener('click', () => {
+  if (receiptList.length === 0) {
+    clearReceiptInputs();
+    currentIndex = 0;
+  } else {
+    currentIndex = receiptList.length - 1;
+    const latestReceipt = receiptList[currentIndex];
+    populateReceipt(latestReceipt.data, latestReceipt.id);
   }
 
   updateNavButtons();

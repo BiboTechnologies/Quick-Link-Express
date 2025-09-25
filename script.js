@@ -281,11 +281,11 @@ parcelForm.addEventListener('submit', (e) => {
     getCurrentOrderId();
 
     // Ask if the user wants to print the receipt
-    const shouldPrint = confirm("Order submitted successfully. Do you want to print the receipt?");
+   // const shouldPrint = confirm("Order submitted successfully. Do you want to print the receipt?");
 
-    if (shouldPrint) {
-      showReceipt(parcelData); // Display the receipt only if user agrees
-    }
+   // if (shouldPrint) {
+   //   showReceipt(parcelData); // Display the receipt only if user agrees
+   // }
 
     parcelForm.reset(); // Reset the form
   })

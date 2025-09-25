@@ -87,20 +87,11 @@ snapshot.forEach(childSnapshot => {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
         color: #333;
       ">
-
-
         <h3 style="color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px; margin-bottom: 20px;">
           Order Details — <span style="font-weight: normal; color: #555;">Order ID #${foundOrder.orderId}</span>
         </h3>
 
         <section style="margin-bottom: 25px;">
-        
-        ${(foundOrder.sender?.lat && foundOrder.sender?.lng && foundOrder.destination?.lat && foundOrder.destination?.lng) ? `
-  <section style="margin-bottom: 25px;">
-    <h4 style="color: #0056b3; border-bottom: 1px solid #ddd; padding-bottom: 6px;">Delivery Route</h4>
-    <div id="leafletMap" style="width: 100%; height: 400px; border-radius: 8px;"></div>
-  </section>
-` : ''}
           <h4 style="color: #0056b3; border-bottom: 1px solid #ddd; padding-bottom: 6px;">Delivery Status</h4>
           <p style="font-size: 16px; font-weight: 600; color: ${getDeliveryStatusColor(foundOrder.deliveryStatus)};">
             ${foundOrder.deliveryStatus || 'IN TRANSIT'}
@@ -150,73 +141,6 @@ snapshot.forEach(childSnapshot => {
     resultBox.innerHTML = `<p style="color:red; font-weight:bold;">Error retrieving order data. Please try again later.</p>`;
   });
 });
-if (
-  foundOrder.sender?.lat && foundOrder.sender?.lng &&
-  foundOrder.destination?.lat && foundOrder.destination?.lng
-) {
-  const senderLatLng = [foundOrder.sender.lat, foundOrder.sender.lng];
-  const receiverLatLng = [foundOrder.destination.lat, foundOrder.destination.lng];
-
-  setTimeout(() => {
-    const map = L.map('leafletMap').setView(senderLatLng, 10);
-
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Sender marker with popup
-    const senderMarker = L.marker(senderLatLng, {
-      title: "Sender",
-      icon: L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
-      })
-    }).addTo(map);
-
-    senderMarker.bindPopup(`
-      <strong>Sender</strong><br/>
-      Name: ${foundOrder.sender.name || 'N/A'}<br/>
-      Phone: ${foundOrder.sender.phone || 'N/A'}<br/>
-      Address: ${foundOrder.sender.address || 'N/A'}
-    `);
-
-    // Receiver marker with popup
-    const receiverMarker = L.marker(receiverLatLng, {
-      title: "Receiver",
-      icon: L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
-      })
-    }).addTo(map);
-
-    receiverMarker.bindPopup(`
-      <strong>Receiver</strong><br/>
-      Name: ${foundOrder.receiver?.name || 'N/A'}<br/>
-      Phone: ${foundOrder.receiver?.phone || 'N/A'}<br/>
-      Address: ${foundOrder.destination?.address || 'N/A'}
-    `);
-
-    // Draw a red line connecting sender and receiver
-    const routeLine = L.polyline([senderLatLng, receiverLatLng], {
-      color: 'red',
-      weight: 4,
-      opacity: 0.7,
-      smoothFactor: 1
-    }).addTo(map);
-
-    // Auto-zoom the map to show both points
-    map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
-
-  }, 300);
-}
-senderMarker.openPopup();
 
 function getDeliveryStatusColor(status) {
   if (!status) return '#0c71c3'; // default blue for in transit
