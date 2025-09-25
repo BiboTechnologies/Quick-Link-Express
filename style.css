@@ -933,3 +933,62 @@ td strong {
     height: 300px;
   }
 }
+.nav-buttons {
+  display: flex;
+  flex-wrap: wrap;          /* allow wrapping on small screens */
+  gap: 8px;                 /* space between buttons */
+  margin-top: 14px;
+}
+
+.nav-buttons button,
+.new-receipt-btn {
+  flex: 1;                  /* make buttons equal width */
+  min-width: 120px;         /* prevent them from getting too small */
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* Prev button */
+#prevBtn {
+  background: #f0f0f0;
+  color: black;
+}
+#prevBtn:hover {
+  background: #e0e0e0;
+}
+
+/* Next button */
+#nextBtn {
+  background: #007bff;
+  color: white;
+}
+#nextBtn:hover {
+  background: #0056b3;
+}
+
+/* Special buttons */
+.new-receipt-btn {
+  background: #28a745;
+  color: white;
+}
+.new-receipt-btn:hover {
+  background: #218838;
+}
+
+/* 📱 Small screen adjustments */
+@media (max-width: 600px) {
+  .nav-buttons {
+    flex-direction: column;   /* stack vertically */
+  }
+  .nav-buttons button {
+    width: 100%;              /* full width on mobile */
+  }
+  #newReceiptBtn {
+    width: 100%;
+    margin-top: 8px;
+  }
+}

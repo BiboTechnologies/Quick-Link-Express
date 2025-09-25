@@ -148,49 +148,34 @@
 					</div>
 				</div>
 			</div>
-  <div class="top-bar">
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search product...">
-      <div id="dropdown" class="dropdown" style="display: none;"></div>
-
-
-    </div>
-<button class="add-product-btn" id="addProductBtn">+ Add Product</button>
-
-<div style="margin-bottom: 20px; font-family: Arial, sans-serif;">
-  <label for="receiptSearchInput" style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 6px;background-color: beige;padding: 10px;border-radius: 10px;">
-    🔍 Search Receipt by Number:
-  </label>
-  <input
-    type="text"
-    id="receiptSearchInput"
-    placeholder="e.g. REC-20250614-12345"
-    style="
-      width: 100%;
-      max-width: 360px;
-      padding: 10px 14px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    "
-  />
-</div>
-
-<div style="margin-top: 14px;">
-  <button id="prevBtn"style="color:black;"  onmouseover="this.style.backgroundColor='#e0e0e0'" onmouseout="this.style.backgroundColor='#f0f0f0'">
-    ⬅️ Previous
-  </button>
-
-  <button id="nextBtn"  onmouseover="this.style.backgroundColor='#0056b3'" onmouseout="this.style.backgroundColor='#007bff'">
-    Next ➡️
-  </button>
-  <button id="jumpToLatestBtn">Jump to Latest</button>
-
-</div>
-<button id="newReceiptBtn" class="new-receipt-btn">➕ New Receipt</button>
-
+<div class="top-bar">
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search product...">
+    <div id="dropdown" class="dropdown" style="display: none;"></div>
   </div>
+
+  <button class="add-product-btn" id="addProductBtn">+ Add Product</button>
+
+  <div class="receipt-search">
+    <label for="receiptSearchInput">
+      🔍 Search Receipt by Number:
+    </label>
+    <input
+      type="text"
+      id="receiptSearchInput"
+      placeholder="e.g. REC-20250614-12345"
+    />
+  </div>
+
+  <div class="nav-buttons">
+    <button id="prevBtn">⬅️ Previous</button>
+    <button id="nextBtn">Next ➡️</button>
+    <button class="new-receipt-btn" id="jumpToLatestBtn">Jump to Latest</button>
+  </div>
+
+  <button id="newReceiptBtn" class="new-receipt-btn">➕ New Receipt</button>
+</div>
+
 <div class="cart-header">
   <h3>🛒 KWIK LINK XPRESS  POS</h3>
   <span id="cartDate"></span>
