@@ -1153,3 +1153,159 @@ td strong {
     height: 300px;
   }
 }
+.nav-buttons {
+  display: flex;
+  flex-wrap: wrap;          /* allow wrapping on small screens */
+  gap: 8px;                 /* space between buttons */
+  margin-top: 14px;
+}
+
+.nav-buttons button,
+.new-receipt-btn {
+  flex: 1;                  /* make buttons equal width */
+  min-width: 120px;         /* prevent them from getting too small */
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* Prev button */
+#prevBtn {
+  background: #f0f0f0;
+  color: black;
+}
+#prevBtn:hover {
+  background: #e0e0e0;
+}
+
+/* Next button */
+#nextBtn {
+  background: #007bff;
+  color: white;
+}
+#nextBtn:hover {
+  background: #0056b3;
+}
+
+/* Special buttons */
+.new-receipt-btn {
+  background: #28a745;
+  color: white;
+}
+.new-receipt-btn:hover {
+  background: #218838;
+}
+
+/* 📱 Small screen adjustments */
+@media (max-width: 600px) {
+  .nav-buttons {
+    flex-direction: column;   /* stack vertically */
+  }
+  .nav-buttons button {
+    width: 100%;              /* full width on mobile */
+  }
+  #newReceiptBtn {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+.top-bar {
+  display: flex;
+  flex-wrap: wrap;          /* allow wrapping if needed */
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* Search bar */
+.search-bar input {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-width: 240px;
+  flex: 1;
+}
+
+/* Add product button */
+.add-product-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.add-product-btn:hover {
+  background: #218838;
+}
+
+/* Receipt search */
+.receipt-search {
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+.receipt-search label {
+  font-weight: bold;
+  margin-bottom: 4px;
+  background-color: beige;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.receipt-search input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-width: 260px;
+}
+
+/* Navigation buttons */
+.nav-buttons {
+  display: flex;
+  gap: 6px;
+}
+.nav-buttons button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* New receipt button */
+.new-receipt-btn {
+  background: #007bff;
+  color: white;
+  width: fit-content;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.new-receipt-btn:hover {
+  background: #0056b3;
+}
+
+/* 📱 Small screens: inline layout */
+@media (max-width: 600px) {
+  .top-bar {
+    flex-direction: column; /* stack vertically */
+    align-items: stretch;
+  }
+  .search-bar input,
+  .receipt-search input,
+  .add-product-btn,
+  .new-receipt-btn,
+  .nav-buttons {
+    width: 100%; /* full width on mobile */
+  }
+  .receipt-search {
+    width: 100%;
+  }
+}
