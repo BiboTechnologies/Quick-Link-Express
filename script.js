@@ -24,25 +24,42 @@ const ordersRef = dbRef(database, 'orders');
 
   // Variables to keep track of the order ID
   let currentOrderId = 1;
+// Function to get the current order ID from Firebase with retry
+async function getCurrentOrderId(retryInterval = 500) {
+  const ordersRef = dbRef(database, 'orders');
+  let currentOrderId = 1; // default if no orders exist
 
-  // Function to get the current order ID from Firebase
-  function getCurrentOrderId() {
-      const ordersRef = dbRef(database, 'orders');
-      get(ordersRef).then((snapshot) => {
-          if (snapshot.exists()) {
-              const orders = snapshot.val();
-              const orderIds = Object.keys(orders).map(key => Number(orders[key].orderId));
-              currentOrderId = Math.max(...orderIds) + 1; // Increment the highest ID
-          }
-          document.getElementById('order-id').textContent = currentOrderId;
-      }).catch((error) => {
-          console.error("Error retrieving order ID:", error);
-          document.getElementById('order-id').textContent = "Error";
-      });
+  while (true) { // keep retrying until successful
+    try {
+      const snapshot = await get(ordersRef);
+
+      if (snapshot.exists()) {
+        const orders = snapshot.val();
+        const orderIds = Object.keys(orders)
+          .map(key => Number(orders[key].orderId))
+          .filter(num => !isNaN(num));
+
+        if (orderIds.length > 0) {
+          currentOrderId = Math.max(...orderIds) + 1;
+        } else {
+          currentOrderId = 1; // no valid order IDs yet
+        }
+      } else {
+        currentOrderId = 1; // no orders exist yet
+      }
+
+      document.getElementById('order-id').textContent = currentOrderId;
+      return currentOrderId; // stop retrying
+    } catch (error) {
+      console.error("Error retrieving order ID, retrying...", error);
+      await new Promise(res => setTimeout(res, retryInterval)); // wait before retrying
+    }
   }
+}
 
-  // Get current order ID when the page loads
-  getCurrentOrderId();
+// Run when page loads
+getCurrentOrderId();
+
 
 
         // Show loader
