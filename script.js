@@ -21,10 +21,10 @@ const storage = getStorage(app);
 const ordersRef = dbRef(database, 'orders');
 
 
+let currentOrderId; // make it global
 
 async function getCurrentOrderId(retryInterval = 500) {
   const ordersRef = dbRef(database, 'orders');
-  let currentOrderId;
 
   while (true) { // retry until successful
     try {
@@ -56,9 +56,8 @@ async function getCurrentOrderId(retryInterval = 500) {
   }
 }
 
-// Run when page loads
+// Run once when page loads
 getCurrentOrderId();
-
 
 
 
