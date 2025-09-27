@@ -545,32 +545,72 @@ function loadReceiptIntoCart(receipt) {
 
 
 let receiptList = [];
-let currentIndex = -1; // Start with nothing selected
-function loadAllReceipts() {
+let currentIndex = -1;
+let firstLoadComplete = false;
+
+function loadAllReceipts(retryCount = 0) {
   const receiptsRef = ref(db, 'receipts');
 
   get(receiptsRef)
     .then(snapshot => {
       if (snapshot.exists()) {
-        const data = snapshot.val();
-        receiptList = [];
-
-        Object.entries(data).forEach(([id, receiptData]) => {
-          receiptList.push({ id: id, data: receiptData });
-        });
-
-        currentIndex = 0;
-
-        // Load the first receipt by default
-        populateReceipt(receiptList[currentIndex].data, receiptList[currentIndex].id);
+        handleReceipts(snapshot.val());
+        firstLoadComplete = true;
+        // ✅ Once loaded, start continuous updates
+        listenForReceipts();
       } else {
-        console.log('No receipts found.');
+        console.warn("No receipts found yet. Retrying...");
+        retryLoad(retryCount);
       }
     })
     .catch(error => {
-      console.error('Error loading receipts:', error);
+      console.error("Error loading receipts:", error);
+      retryLoad(retryCount);
     });
+
+  function retryLoad(retryCount) {
+    if (!firstLoadComplete) {
+      const delay = 1000 * Math.min(30, Math.pow(2, retryCount)); 
+      // exponential backoff, capped at 30s
+      console.log(`Retrying in ${delay / 1000}s...`);
+      setTimeout(() => loadAllReceipts(retryCount + 1), delay);
+    }
+  }
 }
+
+function listenForReceipts() {
+  const receiptsRef = ref(db, 'receipts');
+
+  onValue(receiptsRef, (snapshot) => {
+    if (snapshot.exists()) {
+      handleReceipts(snapshot.val());
+    } else {
+      console.warn("Receipts list is empty.");
+    }
+  }, (error) => {
+    console.error("Error listening for receipts:", error);
+  });
+}
+
+function handleReceipts(data) {
+  receiptList = [];
+
+  Object.entries(data).forEach(([id, receiptData]) => {
+    receiptList.push({ id: id, data: receiptData });
+  });
+
+  if (currentIndex === -1 && receiptList.length > 0) {
+    currentIndex = 0;
+    populateReceipt(receiptList[currentIndex].data, receiptList[currentIndex].id);
+  }
+
+  console.log(`Receipts loaded/updated. Total: ${receiptList.length}`);
+}
+
+// Call this on page load
+loadAllReceipts();
+
+
 function bindCartInputEvents() {
   const qtyInputs = document.querySelectorAll('.qty-input');
   const priceInputs = document.querySelectorAll('.price-input');
@@ -753,8 +793,6 @@ function clearReceiptInputs() {
 
 
 
-// Call this on page load
-loadAllReceipts();
 
 document.getElementById('saveChangesBtn').addEventListener('click', () => {
   // Your logic to save changes to the current receipt
