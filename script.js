@@ -314,43 +314,46 @@ parcelForm.addEventListener('submit', (e) => {
   });
 
 let ordersArray = []; // Declare globally so both onValue and button can access it
-
 onValue(ordersRef, (snapshot) => {
   const ordersTableBody = document.querySelector('#orders-table tbody');
   ordersTableBody.innerHTML = ''; // Clear table
 
   ordersArray = []; // Reset before filling it again
 
-    // Collect all orders into an array
-    snapshot.forEach((childSnapshot) => {
-      const order = childSnapshot.val();
-      order._key = childSnapshot.key; // Store Firebase key for later use
-      ordersArray.push(order);
-    });
-  
-    // Sort orders by timestamp descending
-    ordersArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  
-    // Render rows
-    ordersArray.forEach((order) => {
+  // Collect all orders into an array
+  snapshot.forEach((childSnapshot) => {
+    const order = childSnapshot.val();
+    order._key = childSnapshot.key; // Store Firebase key for later use
+    ordersArray.push(order);
+  });
+
+  // Sort orders by timestamp descending
+  ordersArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  // Function to render table rows
+  function renderOrders(list) {
+    ordersTableBody.innerHTML = ''; // clear before rendering
+
+    list.forEach((order) => {
       const row = document.createElement('tr');
       const status = order.payment.status.toLowerCase();
       const statusColor = status === 'paid' ? 'green-text' : 'red-text';
-  
+
       const deliveryStatus = (order.deliveryStatus || '').toLowerCase();
       const isDelivered = deliveryStatus === 'delivered';
-  
+
       const deliveryHtml = isDelivered
         ? `<span class="delivered">Delivered</span>`
         : `
           <span class="in-progress">
             <span class="orange-ring"></span> In-transit
-<button class="mark-delivered icon-button" title="Mark as Delivered" data-id="${order._key}">
-  <span class="material-icons">check_circle</span>
-</button>
+            <button class="mark-delivered icon-button" title="Mark as Delivered" data-id="${order._key}">
+              <span class="material-icons">check_circle</span>
+            </button>
           </span>
         `;
-        row.innerHTML = `
+
+      row.innerHTML = `
         <td>${order.orderId || 'N/A'}</td>
         <td>
           <strong>Name:</strong> ${order.sender.name}<br>
@@ -362,25 +365,48 @@ onValue(ordersRef, (snapshot) => {
           <strong>Address:</strong> ${order.receiver.address}<br>
           <strong>Phone:</strong> ${order.receiver.phone}<br>
         </td>
-        <td> ${order.parcelDetails.description}</td>
-        <td> ${order.parcelDetails.weight}kg(s)</td>
+        <td>${order.parcelDetails.description}</td>
+        <td>${order.parcelDetails.weight}kg(s)</td>
         <td class="${statusColor}">
           <strong>${order.payment.status.toUpperCase()}:</strong> UGX ${order.payment.amount}
           ${status === 'not-paid' ? `<br><button class="pay-button" data-id="${order._key}">Pay</button>` : ''}
         </td>
-        <td> ${new Date(order.timestamp).toLocaleString()}</td>
-
-
+        <td>${new Date(order.timestamp).toLocaleString()}</td>
         <td>${deliveryHtml}</td>
-<td>
-  <button class="print-receipt-btn styled-btn" data-id="${order._key}">🖨️ Print</button>
-  <button class="view-details-btn styled-btn view-btn" data-id="${order._key}">👁️ View Details</button>
-</td>
-
-
-
+        <td>
+          <button class="print-receipt-btn styled-btn" data-id="${order._key}">🖨️ Print</button>
+          <button class="view-details-btn styled-btn view-btn" data-id="${order._key}">👁️ View Details</button>
+        </td>
       `;
-      
+
+      ordersTableBody.appendChild(row);
+    });
+  }
+
+  // Initially render all
+  renderOrders(ordersArray);
+
+  // Search input logic
+  const searchInput = document.querySelector('.form-control.form-control-dark');
+  searchInput.addEventListener('input', () => {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+
+    const filtered = ordersArray.filter(order => {
+      const senderName = order.sender.name?.toLowerCase() || '';
+      const senderPhone = order.sender.phone?.toLowerCase() || '';
+      const receiverName = order.receiver.name?.toLowerCase() || '';
+      const receiverPhone = order.receiver.phone?.toLowerCase() || '';
+
+      return (
+        senderName.includes(searchTerm) ||
+        senderPhone.includes(searchTerm) ||
+        receiverName.includes(searchTerm) ||
+        receiverPhone.includes(searchTerm)
+      );
+    });
+
+    renderOrders(filtered);
+
       ordersTableBody.appendChild(row);
  row.querySelectorAll('.print-receipt-btn').forEach(button => {
   button.addEventListener('click', () => {
