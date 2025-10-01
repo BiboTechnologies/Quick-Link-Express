@@ -464,7 +464,7 @@ function printReceipt(receiptNo, trackingNo, order, trackingLink) {
   printWindow.document.write(`
     <html>
       <head>
-        <title>Parcel Ticket - KWIK LINK XPRESS</title>
+        <title>Parcel Ticket - KWIKLINK XPRESS</title>
         <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
         <style>
@@ -555,7 +555,7 @@ function generateTicketHTML(receiptNo, order, trackingLink, copyLabel, trackingN
         <p style="font-size: 12px; color: #555;">Scan to track your parcel</p>
       </div>
       <div class="footer">
-        Thank you for choosing KWIK LINK XPRESS
+        Thank you for choosing KWIKLINK XPRESS
         <span>This receipt was auto-generated. No signature required.</span>
       </div>
     </div>
@@ -729,7 +729,7 @@ const breakdownRows = Object.keys(dailyStats)
     <img src="${companyLogo}" alt="Company Logo" style="height: 80px;">
     
     <div style="text-align: left;">
-      <h2 style="margin: 0;">KWIK LINK XPRESS </h2>
+      <h2 style="margin: 0;">KWIKLINK XPRESS </h2>
       <p style="margin: 2px 0;">
         Plot 12, Luwum Street, Kampala, Uganda<br>
         Tel: +256 754 142039 | Email: info@snrxpress.com

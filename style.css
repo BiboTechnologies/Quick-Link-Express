@@ -46,6 +46,7 @@ figure {
 
 .card-list {
   width: 100%;
+
 }
 .card-list:before, .card-list:after {
   content: " ";
@@ -992,4 +993,19 @@ td strong {
     width: 100%;
     margin-top: 8px;
   }
+}
+
+
+.col-md-9 {
+  width: 100%;
+  margin-left: 0 ;
+}
+
+main[role="main"] {
+  flex: 0 0 90% !important; /* Take 90% width */
+  max-width:85% !important;
+  margin-left: auto; /* Keep aligned with sidebar */
+}
+.sidebar-sticky{
+  height: fit-content;
 }

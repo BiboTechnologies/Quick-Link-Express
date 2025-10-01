@@ -415,7 +415,7 @@ function printReceipt() {
       </style>
     </head>
     <body>
-      <h2>KWIK LINK XPRESS  Receipt</h2>
+      <h2>KWIKLINK XPRESS  Receipt</h2>
       <p><strong>Date:</strong> ${dateStr}</p>
       <p><strong>Order ID:</strong> ${orderId}</p>
       <p><strong>Customer:</strong> ${document.getElementById('customerName').value}</p>
