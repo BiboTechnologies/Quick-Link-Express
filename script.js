@@ -329,282 +329,231 @@ onValue(ordersRef, (snapshot) => {
 
   // Sort orders by timestamp descending
   ordersArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+// === RENDER ORDERS ===
+function renderOrders(list) {
+  const ordersTableBody = document.querySelector('#orders-table tbody');
+  ordersTableBody.innerHTML = ''; // clear before rendering
 
-  // Function to render table rows
-  function renderOrders(list) {
-    ordersTableBody.innerHTML = ''; // clear before rendering
+  list.forEach((order) => {
+    const row = document.createElement('tr');
+    const status = order.payment.status.toLowerCase();
+    const statusColor = status === 'paid' ? 'green-text' : 'red-text';
 
-    list.forEach((order) => {
-      const row = document.createElement('tr');
-      const status = order.payment.status.toLowerCase();
-      const statusColor = status === 'paid' ? 'green-text' : 'red-text';
+    const deliveryStatus = (order.deliveryStatus || '').toLowerCase();
+    const isDelivered = deliveryStatus === 'delivered';
 
-      const deliveryStatus = (order.deliveryStatus || '').toLowerCase();
-      const isDelivered = deliveryStatus === 'delivered';
-
-      const deliveryHtml = isDelivered
-        ? `<span class="delivered">Delivered</span>`
-        : `
-          <span class="in-progress">
-            <span class="orange-ring"></span> In-transit
-            <button class="mark-delivered icon-button" title="Mark as Delivered" data-id="${order._key}">
-              <span class="material-icons">check_circle</span>
-            </button>
-          </span>
-        `;
-
-      row.innerHTML = `
-        <td>${order.orderId || 'N/A'}</td>
-        <td>
-          <strong>Name:</strong> ${order.sender.name}<br>
-          <strong>Address:</strong> ${order.sender.address}<br>
-          <strong>Phone:</strong> ${order.sender.phone}<br>
-        </td>
-        <td>
-          <strong>Name:</strong> ${order.receiver.name}<br>
-          <strong>Address:</strong> ${order.receiver.address}<br>
-          <strong>Phone:</strong> ${order.receiver.phone}<br>
-        </td>
-        <td>${order.parcelDetails.description}</td>
-        <td>${order.parcelDetails.weight}kg(s)</td>
-        <td class="${statusColor}">
-          <strong>${order.payment.status.toUpperCase()}:</strong> UGX ${order.payment.amount}
-          ${status === 'not-paid' ? `<br><button class="pay-button" data-id="${order._key}">Pay</button>` : ''}
-        </td>
-        <td>${new Date(order.timestamp).toLocaleString()}</td>
-        <td>${deliveryHtml}</td>
-        <td>
-          <button class="print-receipt-btn styled-btn" data-id="${order._key}">🖨️ Print</button>
-          <button class="view-details-btn styled-btn view-btn" data-id="${order._key}">👁️ View Details</button>
-        </td>
+    const deliveryHtml = isDelivered
+      ? `<span class="delivered">Delivered</span>`
+      : `
+        <span class="in-progress">
+          <span class="orange-ring"></span> In-transit
+          <button class="mark-delivered icon-button" title="Mark as Delivered" data-id="${order._key}">
+            <span class="material-icons">check_circle</span>
+          </button>
+        </span>
       `;
 
-      ordersTableBody.appendChild(row);
-    });
+    row.innerHTML = `
+      <td>${order.orderId || 'N/A'}</td>
+      <td>
+        <strong>Name:</strong> ${order.sender.name}<br>
+        <strong>Address:</strong> ${order.sender.address}<br>
+        <strong>Phone:</strong> ${order.sender.phone}<br>
+      </td>
+      <td>
+        <strong>Name:</strong> ${order.receiver.name}<br>
+        <strong>Address:</strong> ${order.receiver.address}<br>
+        <strong>Phone:</strong> ${order.receiver.phone}<br>
+      </td>
+      <td>${order.parcelDetails.description}</td>
+      <td>${order.parcelDetails.weight}kg(s)</td>
+      <td class="${statusColor}">
+        <strong>${order.payment.status.toUpperCase()}:</strong> UGX ${order.payment.amount}
+        ${status === 'not-paid' ? `<br><button class="pay-button" data-id="${order._key}">Pay</button>` : ''}
+      </td>
+      <td>${new Date(order.timestamp).toLocaleString()}</td>
+      <td>${deliveryHtml}</td>
+      <td>
+        <button class="print-receipt-btn styled-btn" data-id="${order._key}">🖨️ Print</button>
+        <button class="view-details-btn styled-btn view-btn" data-id="${order._key}">👁️ View Details</button>
+      </td>
+    `;
+    ordersTableBody.appendChild(row);
+    
+  });
+}
+// ⚡ Render the table initially
+  renderOrders(ordersArray);
+// === SEARCH HANDLER ===
+const searchInput = document.querySelector('.form-control.form-control-dark');
+searchInput.addEventListener('input', () => {
+  const searchTerm = searchInput.value.toLowerCase().trim();
+
+  const filtered = ordersArray.filter(order => {
+    const senderName = order.sender.name?.toLowerCase() || '';
+    const senderPhone = order.sender.phone?.toLowerCase() || '';
+    const receiverName = order.receiver.name?.toLowerCase() || '';
+    const receiverPhone = order.receiver.phone?.toLowerCase() || '';
+
+    return (
+      senderName.includes(searchTerm) ||
+      senderPhone.includes(searchTerm) ||
+      receiverName.includes(searchTerm) ||
+      receiverPhone.includes(searchTerm)
+    );
+  });
+
+  renderOrders(filtered);
+});
+
+// === EVENT DELEGATION (all buttons) ===
+document.querySelector('#orders-table tbody').addEventListener('click', async (e) => {
+  const target = e.target.closest('button');
+  if (!target) return;
+
+  const orderId = target.getAttribute('data-id');
+  if (!orderId) return;
+
+  const order = ordersArray.find(o => o._key === orderId);
+
+  // Pay Button
+  if (target.classList.contains('pay-button')) {
+    const paymentStatusRef = dbRef(database, `orders/${orderId}/payment/status`);
+    try {
+      await set(paymentStatusRef, 'paid');
+     // alert(`Payment confirmed for order ${orderId}`);
+    } catch (err) {
+      console.error(err);
+      alert('Could not update payment status.');
+    }
   }
 
-  // Initially render all
-  renderOrders(ordersArray);
+  // Mark as Delivered
+  if (target.classList.contains('mark-delivered')) {
+    const deliveryRef = dbRef(database, `orders/${orderId}/deliveryStatus`);
+    try {
+      await set(deliveryRef, 'delivered');
+     // alert(`Order ${orderId} marked as delivered`);
+    } catch (err) {
+      console.error(err);
+      alert('Could not update status.');
+    }
+  }
 
-  // Search input logic
-  const searchInput = document.querySelector('.form-control.form-control-dark');
-  searchInput.addEventListener('input', () => {
-    const searchTerm = searchInput.value.toLowerCase().trim();
+  // Print Receipt
+  if (target.classList.contains('print-receipt-btn')) {
+    if (order) {
+      const receiptNo = order.orderId || order._key;
+      const trackingNo = order._key;
+      const trackingLink = `https://bibotechnologies.github.io/Quick-Link-Express/tracking.html?orderId=${receiptNo}`;
+      printReceipt(receiptNo, trackingNo, order, trackingLink);
+    }
+  }
 
-    const filtered = ordersArray.filter(order => {
-      const senderName = order.sender.name?.toLowerCase() || '';
-      const senderPhone = order.sender.phone?.toLowerCase() || '';
-      const receiverName = order.receiver.name?.toLowerCase() || '';
-      const receiverPhone = order.receiver.phone?.toLowerCase() || '';
-
-      return (
-        senderName.includes(searchTerm) ||
-        senderPhone.includes(searchTerm) ||
-        receiverName.includes(searchTerm) ||
-        receiverPhone.includes(searchTerm)
-      );
-    });
-
-    renderOrders(filtered);
-
-      ordersTableBody.appendChild(row);
- row.querySelectorAll('.print-receipt-btn').forEach(button => {
-  button.addEventListener('click', () => {
-    const orderId = button.getAttribute('data-id');
-    const order = ordersArray.find(o => o._key === orderId);
-    const receiptNo = order.orderId || order._key;
-    const trackingNo = order._key;
-
-const trackingLink = `https://bibotechnologies.github.io/Quick-Link-Express/tracking.html?orderId=${receiptNo}`;
-
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Parcel Ticket - KWIK LINK XPRESS</title>
-          <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-          <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
-          <style>
-            body {
-              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-              padding: 30px;
-              color: #2c3e50;
-              background-color: #fff;
-            }
-            .copy {
-              margin-bottom: 40px;
-            }
-            .header {
-              display: flex;
-              align-items: center;
-              border-bottom: 3px solidrgb(255, 0, 0);
-              padding-bottom: 10px;
-              margin-bottom: 20px;
-            }
-            .header img {
-              height: 150px;
-            }
-            .header-text {
-              flex-grow: 1;
-              text-align: center;
-            }
-            .header-text h2 {
-              margin: 0;
-              font-size: 26px;
-              color:rgb(228, 0, 0);
-              text-transform: uppercase;
-            }
-            .ticket-title {
-              text-align: center;
-              font-size: 20px;
-              font-weight: bold;
-              color: #000;
-              margin: 10px 0 20px;
-              padding: 5px;
-              border-top: 1px dashed #333;
-              border-bottom: 1px dashed #333;
-            }
-            .section {
-              margin-bottom: 20px;
-              border: 1px solid #e0e0e0;
-              border-left: 5px solid #007bff;
-              padding: 10px 15px;
-              border-radius: 4px;
-              background-color: #f9f9f9;
-            }
-            .section h3 {
-              margin-top: 0;
-              color:rgb(228, 0, 0);
-              font-size: 16px;
-              border-bottom: 1px solid #ddd;
-              padding-bottom: 4px;
-              text-transform: uppercase;
-            }
-            .footer {
-              text-align: center;
-              margin-top: 30px;
-              font-weight: bold;
-              font-size: 14px;
-              color: #333;
-            }
-            .footer span {
-              display: block;
-              font-size: 12px;
-              font-weight: normal;
-              color: #777;
-            }
-            .barcode, .qrcode {
-              text-align: center;
-              margin-top: 20px;
-            }
-            .divider {
-              border-top: 2px dashed #999;
-              margin: 40px 0;
-              text-align: center;
-              position: relative;
-            }
-            .divider:after {
-              content: 'CUT HERE';
-              position: absolute;
-              background: #fff;
-              padding: 0 10px;
-              top: -12px;
-              left: 50%;
-              transform: translateX(-50%);
-              font-size: 12px;
-              color: #555;
-            }
-          </style>
-        </head>
-        <body>
-${generateTicketHTML(receiptNo, order, trackingLink, 'Customer Copy', trackingNo)}
-          <div class="divider"></div>
-${generateTicketHTML(receiptNo, order, trackingLink, 'Office Copy', trackingNo)}
-
-          <script>
-            JsBarcode(".barcode-img", "${receiptNo}", {
-              format: "CODE128",
-              displayValue: true,
-              lineColor: "#000",
-              fontSize: 14,
-              height: 50,
-              margin: 5
-            });
-
-            new QRious({
-              element: document.getElementById("qr-${receiptNo}"),
-              value: "${trackingLink}",
-              size: 100,
-            });
-          </script>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
-  });
+  // View Details
+  if (target.classList.contains('view-details-btn')) {
+    if (order) {
+      showTransportDetails(orderId, order);
+    }
+  }
 });
+
+// === PRINT RECEIPT FUNCTION ===
+function printReceipt(receiptNo, trackingNo, order, trackingLink) {
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Parcel Ticket - KWIK LINK XPRESS</title>
+        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #2c3e50; background-color: #fff; }
+          .copy { margin-bottom: 40px; }
+          .header { display: flex; align-items: center; border-bottom: 3px solid rgb(255, 0, 0); padding-bottom: 10px; margin-bottom: 20px; }
+          .header img { height: 150px; }
+          .header-text { flex-grow: 1; text-align: center; }
+          .header-text h2 { margin: 0; font-size: 26px; color:rgb(228, 0, 0); text-transform: uppercase; }
+          .ticket-title { text-align: center; font-size: 20px; font-weight: bold; color: #000; margin: 10px 0 20px; padding: 5px; border-top: 1px dashed #333; border-bottom: 1px dashed #333; }
+          .section { margin-bottom: 20px; border: 1px solid #e0e0e0; border-left: 5px solid #007bff; padding: 10px 15px; border-radius: 4px; background-color: #f9f9f9; }
+          .section h3 { margin-top: 0; color:rgb(228, 0, 0); font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 4px; text-transform: uppercase; }
+          .footer { text-align: center; margin-top: 30px; font-weight: bold; font-size: 14px; color: #333; }
+          .footer span { display: block; font-size: 12px; font-weight: normal; color: #777; }
+          .barcode, .qrcode { text-align: center; margin-top: 20px; }
+          .divider { border-top: 2px dashed #999; margin: 40px 0; text-align: center; position: relative; }
+          .divider:after { content: 'CUT HERE'; position: absolute; background: #fff; padding: 0 10px; top: -12px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #555; }
+        </style>
+      </head>
+      <body>
+        ${generateTicketHTML(receiptNo, order, trackingLink, 'Customer Copy', trackingNo)}
+        <div class="divider"></div>
+        ${generateTicketHTML(receiptNo, order, trackingLink, 'Office Copy', trackingNo)}
+
+        <script>
+          JsBarcode(".barcode-img", "${receiptNo}", {
+            format: "CODE128",
+            displayValue: true,
+            lineColor: "#000",
+            fontSize: 14,
+            height: 50,
+            margin: 5
+          });
+          new QRious({
+            element: document.getElementById("qr-${receiptNo}"),
+            value: "${trackingLink}",
+            size: 100,
+          });
+        </script>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+}
+
 function generateTicketHTML(receiptNo, order, trackingLink, copyLabel, trackingNo) {
   return `
     <div class="copy">
       <div class="header">
         <img src="kwik-link-xpress-high-resolution-logo.png" alt="KWIK LINK Logo">
         <div class="header-text">
-          <h2>KWIKLINK XPRESS </h2>
+          <h2>KWIKLINK XPRESS</h2>
           <p>Plot 12, Luwum Street, Kampala, Uganda</p>
           <p>+256 754 142039 | +256 702 587589</p>
           <p>info@kwiklinkxpress.com</p>
         </div>
       </div>
-
       <div class="ticket-title">📦 PARCEL TICKET — <em>${copyLabel}</em></div>
-
       <p><strong>Receipt Number:</strong> ${receiptNo}</p>
-<p><strong>Tracking Number:</strong> ${trackingNo.slice(-5)}</p>
-
+      <p><strong>Tracking Number:</strong> ${trackingNo.slice(-5)}</p>
       <div class="section">
         <h3>Sender</h3>
-        <p>
-          <strong>Name:</strong> ${order.sender.name}<br>
-          <strong>Address:</strong> ${order.sender.address}<br>
-          <strong>Phone:</strong> ${order.sender.phone}
-        </p>
+        <p><strong>Name:</strong> ${order.sender.name}<br>
+        <strong>Address:</strong> ${order.sender.address}<br>
+        <strong>Phone:</strong> ${order.sender.phone}</p>
       </div>
-
       <div class="section">
         <h3>Receiver</h3>
-        <p>
-          <strong>Name:</strong> ${order.receiver.name}<br>
-          <strong>Address:</strong> ${order.receiver.address}<br>
-          <strong>Phone:</strong> ${order.receiver.phone}
-        </p>
+        <p><strong>Name:</strong> ${order.receiver.name}<br>
+        <strong>Address:</strong> ${order.receiver.address}<br>
+        <strong>Phone:</strong> ${order.receiver.phone}</p>
       </div>
-
       <div class="section">
         <h3>Parcel Details</h3>
-        <p>
-          <strong>Description:</strong> ${order.parcelDetails.description}<br>
-          <strong>Weight:</strong> ${order.parcelDetails.weight} kg
-        </p>
+        <p><strong>Description:</strong> ${order.parcelDetails.description}<br>
+        <strong>Weight:</strong> ${order.parcelDetails.weight} kg</p>
       </div>
-
       <div class="section">
         <h3>Payment & Status</h3>
-        <p>
-          <strong>Status:</strong> ${order.payment.status.toUpperCase()}<br>
-          <strong>Amount Paid:</strong> UGX ${order.payment.amount}<br>
-          <strong>Date:</strong> ${new Date(order.timestamp).toLocaleString()}
-        </p>
+        <p><strong>Status:</strong> ${order.payment.status.toUpperCase()}<br>
+        <strong>Amount Paid:</strong> UGX ${order.payment.amount}<br>
+        <strong>Date:</strong> ${new Date(order.timestamp).toLocaleString()}</p>
       </div>
-
-      <div class="barcode">
-        <svg class="barcode-img"></svg>
-      </div>
+      <div class="barcode"><svg class="barcode-img"></svg></div>
       <div class="qrcode">
         <canvas id="qr-${receiptNo}"></canvas>
         <p style="font-size: 12px; color: #555;">Scan to track your parcel</p>
       </div>
-
       <div class="footer">
         Thank you for choosing KWIK LINK XPRESS
         <span>This receipt was auto-generated. No signature required.</span>
@@ -613,188 +562,105 @@ function generateTicketHTML(receiptNo, order, trackingLink, copyLabel, trackingN
   `;
 }
 
+// === SHOW TRANSPORT DETAILS (modal + WhatsApp) ===
+async function showTransportDetails(orderId, order) {
+  const detailsRef = dbRef(database, `orders/${orderId}/transportDetails`);
+  const snapshot = await get(detailsRef);
 
-      row.querySelectorAll('.pay-button').forEach(button => {
-        button.addEventListener('click', () => {
-          const orderId = button.getAttribute('data-id');
-          const paymentStatusRef = dbRef(database, `orders/${orderId}/payment/status`);
-          set(paymentStatusRef, 'paid')
-            .then(() => {
-              alert(`Payment confirmed for order ${orderId}`);
-            })
-            .catch((error) => {
-              console.error('Payment update failed:', error);
-              alert('Could not update payment status. Please try again.');
-            });
-        });
-      });
-document.querySelectorAll('.view-details-btn').forEach(button => {
-  button.addEventListener('click', () => {
-    const orderId = button.getAttribute('data-id');
-    const order = ordersArray.find(o => o._key === orderId);
+  let content = '';
+  let detailsData = {};
 
-    const detailsRef = dbRef(database, `orders/${orderId}/transportDetails`);
-    get(detailsRef).then(snapshot => {
-      let content = '';
+  if (snapshot.exists()) {
+    detailsData = snapshot.val();
+    content = '<h4><i class="fas fa-truck"></i> Transport Details:</h4>';
 
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        content = '<h4><i class="fas fa-truck"></i> Transport Details:</h4>';
+    Object.entries(detailsData).forEach(([key, detail]) => {
+      const companyName = "KwikLink Xpress";
+      const companyContact = "+256754152039";
+      const destination = order.receiver.address || "Not set";
+      const receiverName = order.receiver.name || "Not set";
+      const customerName = order.sender.name || "Not set";
+      const items = Array.isArray(order.parcelDetails.description)
+        ? order.parcelDetails.description.join(", ")
+        : (order.parcelDetails.description || "Not set");
+      const receiptLink = detail.receiptImage || "";
 
-        Object.entries(data).forEach(([key, detail]) => {
-          const companyName = "KwikLink Xpress";
-          const companyContact = "+256754152039";
+      let senderPhone = (order.sender.phone || "").replace(/\D/g, "");
+      if (senderPhone.startsWith("0")) senderPhone = "256" + senderPhone.substring(1);
+      else if (!senderPhone.startsWith("256")) senderPhone = "256" + senderPhone;
 
-          const destination = order.receiver.address || "Not set";
-          const receiverName = order.receiver.name || "Not set";
-          const customerName = order.sender.name || "Not set";
+      const message = encodeURIComponent(
+        `🌟 Hello ${customerName}!\n\n✅ Delivery details from ${companyName}:\n📄 Order Details:\n🏠 Destination: ${destination}\n👤 Receiver: ${receiverName}\n📦 Items: ${items}\n\n🚚 Transport Details:\n🧑‍✈️ Driver: ${detail.driverName || 'Not set'}\n🚗 Plate Number: ${detail.plateNumber || 'Not set'}\n${receiptLink ? `🧾 Receipt: ${receiptLink}\n` : ''}⏰ Added At: ${new Date(detail.addedAt).toLocaleString()}\n\n🙏 Thank you for choosing ${companyName}!\n📞 Contact: ${companyContact}`
+      );
 
-          const items = Array.isArray(order.parcelDetails.description)
-            ? order.parcelDetails.description.join(", ")
-            : (order.parcelDetails.description || "Not set");
+      const whatsappUrl = `https://wa.me/${senderPhone}?text=${message}`;
 
-          const receiptLink = detail.receiptImage ? detail.receiptImage : "";
+      content += `
+        <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:5px;">
+          <p><strong>Driver:</strong> ${detail.driverName || 'Not set'}</p>
+          <p><strong>Plate Number:</strong> ${detail.plateNumber || 'Not set'}</p>
+          ${receiptLink ? `
+            <p><strong>Receipt:</strong><br>
+              <img src="${receiptLink}" style="width:300px; border-radius:5px;"><br>
+              <a href="${receiptLink}" download="receipt-${orderId}-${key}">Download Receipt</a>
+            </p>
+          ` : '<p>No receipt uploaded.</p>'}
+          <p><em>Added at: ${new Date(detail.addedAt).toLocaleString()}</em></p>
+          <a href="${whatsappUrl}" target="_blank" style="background-color:#25D366; color:white; padding:6px 12px; border-radius:5px; text-decoration:none;">Message Sender on WhatsApp</a>
+        </div>
+      `;
+    });
 
-          // Build WhatsApp message (emojis)
-          const message = encodeURIComponent(
-            `🌟 *Hello Mr/Mrs. ${customerName || ''}!* 👋\n\n` +
-            `✅ Here are your delivery details from *${companyName}*:\n\n` +
-            `📄 *Order Details:*\n` +
-            `🏠 Destination: ${destination}\n` +
-            `👤 Receiver: ${receiverName}\n` +
-            `📦 Items: ${items}\n\n` +
-            `🚚 *Transport Details:*\n` +
-            `🧑‍✈️ Driver: ${detail.driverName || 'Not set'}\n` +
-            `🚗 Plate Number: ${detail.plateNumber || 'Not set'}\n` +
-            (receiptLink ? `🧾 Receipt: ${receiptLink}\n` : '') +
-            `⏰ Added At: ${new Date(detail.addedAt).toLocaleString()}\n\n` +
-            `🙏 *Thank you for choosing ${companyName}!* 💖\n` +
-            `📞 For assistance, contact us at ${companyContact}.`
-          );
+  } else {
+    content = `
+      <p>No transport details found for this order.</p>
+      <button id="editDetailsBtn" style="background-color:#3498db;color:white;padding:8px 14px;border-radius:5px; margin-top:10px;">➕ Add Details</button>
+    `;
+  }
 
-          // Clean and format sender phone number
-          let senderPhone = (order.sender.phone || "").replace(/\D/g, "");
-          if (senderPhone.startsWith("0")) {
-            // Local format (e.g., 0700...)
-            senderPhone = "256" + senderPhone.substring(1);
-          } else if (!senderPhone.startsWith("256")) {
-            // Missing country code entirely
-            senderPhone = "256" + senderPhone;
-          }
+  document.getElementById('viewModalHeader').textContent = `Details for Order: ${order.sender.name} → ${order.receiver.name}`;
+  document.getElementById('viewDetailsContent').innerHTML = content;
+  document.getElementById('viewDetailsModal').style.display = 'block';
 
-          const whatsappUrl = `https://wa.me/${senderPhone}?text=${message}`;
+  // Attach edit buttons (if any)
+  document.querySelectorAll('.editDetailBtn').forEach(editBtn => {
+    editBtn.addEventListener('click', () => {
+      const detailKey = editBtn.getAttribute('data-key');
+      const detailData = detailsData[detailKey];
 
-          // Build HTML preview
-          content += `
-            <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:5px;">
-              <p><i class="fas fa-id-card"></i> <strong>Driver:</strong> ${detail.driverName || 'Not set'}</p>
-              <p><i class="fas fa-car"></i> <strong>Plate Number:</strong> ${detail.plateNumber || 'Not set'}</p>
-              ${receiptLink ? `
-                <p><i class="fas fa-receipt"></i> <strong>Receipt:</strong><br>
-                  <img src="${receiptLink}" 
-                       style="width:300px; height:auto; border:1px solid #ccc; border-radius:5px; display:block; margin-top:8px;">
-                  <a href="${receiptLink}" 
-                     download="receipt-${orderId}-${key}.jpg"
-                     style="display:inline-block; margin-top:8px; color:#1a73e8; text-decoration:underline;">
-                    <i class="fas fa-download"></i> Download Receipt
-                  </a>
-                </p>
-              ` : '<p><i class="fas fa-ban"></i> No receipt uploaded.</p>'}
-              <p><i class="fas fa-clock"></i> <em>Added at: ${new Date(detail.addedAt).toLocaleString()}</em></p>
-
-              <button class="editDetailBtn" data-key="${key}"
-                style="background-color:#e67e22; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer;">
-                ✏️ Edit This Detail
-              </button>
-
-              <a href="${whatsappUrl}" target="_blank"
-                style="display:inline-block; margin-top:8px; background-color:#25D366; color:white; padding:6px 12px; border-radius:5px; text-decoration:none;">
-                <i class="fab fa-whatsapp"></i> Message Sender on WhatsApp
-              </a>
-            </div>
-          `;
-        });
-
-
-
-        // Store data reference for use in event listeners
-        const detailsData = data;
-
-        document.getElementById('viewModalHeader').textContent = `Details for This Order: ${order.sender.name} → ${order.receiver.name}`;
-        document.getElementById('viewDetailsContent').innerHTML = content;
-        document.getElementById('viewDetailsModal').style.display = 'block';
-
-        // Attach event listeners to all edit buttons
-        document.querySelectorAll('.editDetailBtn').forEach(editBtn => {
-          editBtn.addEventListener('click', () => {
-            const detailKey = editBtn.getAttribute('data-key');
-            const detailData = detailsData[detailKey];
-
-            // Close the details view modal
-            document.getElementById('viewDetailsModal').style.display = 'none';
-
-            // Prefill the edit form with existing data
-            document.getElementById('detailsOrderId').value = orderId;
-            document.getElementById('driverName').value = detailData.driverName || '';
-            document.getElementById('plateNumber').value = detailData.plateNumber || '';
-
-            // Save the key being edited for updating later
-            document.getElementById('detailsModal').setAttribute('data-edit-key', detailKey);
-
-            // Update modal header text
-            document.getElementById('modalOrderHeader').textContent = `Edit Transport Detail for Order: ${order.sender.name} → ${order.receiver.name}`;
-
-            // Show the edit modal
-            document.getElementById('detailsModal').style.display = 'block';
-          });
-        });
-
-      } else {
-        // No transport details found for this order
-        content = `
-          <p>No details found for this order.</p>
-          <button id="editDetailsBtn" style="background-color: #3498db; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
-            ➕ Add Details
-          </button>
-        `;
-
-        document.getElementById('viewModalHeader').textContent = `Details for This Order: ${order.sender.name} → ${order.receiver.name}`;
-        document.getElementById('viewDetailsContent').innerHTML = content;
-        document.getElementById('viewDetailsModal').style.display = 'block';
-
-        // Handle Add Details button
-        const addBtn = document.getElementById('editDetailsBtn');
-        if (addBtn) {
-          addBtn.addEventListener('click', () => {
-            document.getElementById('viewDetailsModal').style.display = 'none';
-            document.getElementById('detailsOrderId').value = orderId;
-
-            // Clear edit key since this is a new entry
-            document.getElementById('detailsModal').removeAttribute('data-edit-key');
-
-            // Clear form inputs
-            document.getElementById('driverName').value = '';
-            document.getElementById('plateNumber').value = '';
-
-            document.getElementById('modalOrderHeader').textContent = `Add Transport Detail for Order: ${order.sender.name} → ${order.receiver.name}`;
-            document.getElementById('detailsModal').style.display = 'block';
-          });
-        }
-      }
+      document.getElementById('viewDetailsModal').style.display = 'none';
+      document.getElementById('detailsOrderId').value = orderId;
+      document.getElementById('driverName').value = detailData.driverName || '';
+      document.getElementById('plateNumber').value = detailData.plateNumber || '';
+      document.getElementById('detailsModal').setAttribute('data-edit-key', detailKey);
+      document.getElementById('modalOrderHeader').textContent = `Edit Transport Detail for Order: ${order.sender.name} → ${order.receiver.name}`;
+      document.getElementById('detailsModal').style.display = 'block';
     });
   });
-});
+
+  // Attach "Add Details" button if present
+  const addBtn = document.getElementById('editDetailsBtn');
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      document.getElementById('viewDetailsModal').style.display = 'none';
+      document.getElementById('detailsOrderId').value = orderId;
+      document.getElementById('detailsModal').removeAttribute('data-edit-key');
+      document.getElementById('driverName').value = '';
+      document.getElementById('plateNumber').value = '';
+      document.getElementById('modalOrderHeader').textContent = `Add Transport Detail for Order: ${order.sender.name} → ${order.receiver.name}`;
+      document.getElementById('detailsModal').style.display = 'block';
+    });
+  }
+}
+
+// === CANCEL TRANSPORT MODAL ===
 document.getElementById('cancelTransportBtn').addEventListener('click', () => {
-  // Hide the details modal
   document.getElementById('detailsModal').style.display = 'none';
-
-  // Clear the edit key attribute to reset the form state
   document.getElementById('detailsModal').removeAttribute('data-edit-key');
-
-  // Clear input fields
   document.getElementById('driverName').value = '';
   document.getElementById('plateNumber').value = '';
 });
+
 
 
 document.querySelectorAll('.add-details-btn').forEach(button => {
@@ -814,24 +680,10 @@ document.querySelectorAll('.add-details-btn').forEach(button => {
   });
 });
 
-      // Add event listener to "Mark as Delivered" buttons
-row.querySelectorAll('.mark-delivered').forEach(button => {
-    button.addEventListener('click', () => {
-      const orderId = button.getAttribute('data-id');
-      const deliveryRef = dbRef(database, `orders/${orderId}/deliveryStatus`);
-      set(deliveryRef, 'delivered')
-        .then(() => {
-          alert(`Order ${orderId} marked as delivered`);
-        })
-        .catch((error) => {
-          console.error('Failed to update delivery status:', error);
-          alert('Could not update status. Try again.');
-        });
-    });
-  });
+
   
     });
-  });
+
   
 document.getElementById('showRevenueBtn').addEventListener('click', () => {
   let totalRevenue = 0;

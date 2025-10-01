@@ -23,6 +23,7 @@ figure {
 .sidebar {
   background-color: #1b2431;
   box-shadow: none;
+  width: fit-content;
 }
 .sidebar .nav-link {
   border-left: 5px solid transparent;
