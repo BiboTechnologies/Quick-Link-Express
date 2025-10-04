@@ -18,8 +18,13 @@ const auth = getAuth(app);
 const storage = getStorage(app);
  const db = getDatabase(app);
   const dbRef = ref(db);
-const products = [];
+// ✅ Use let instead of const
+let products = [];
+
+// ✅ Fetch Products from Firebase
 function fetchProductsFromFirebase() {
+  products = []; // clear before reloading
+
   get(child(dbRef, 'products')).then(snapshot => {
     if (snapshot.exists()) {
       const data = snapshot.val();
@@ -27,7 +32,7 @@ function fetchProductsFromFirebase() {
       for (const key in data) {
         const entry = data[key];
 
-        // If this is a product (has 'name' and 'price'), it's a flat entry
+        // Direct product entry
         if (entry.name && entry.price !== undefined) {
           products.push({
             name: entry.name,
@@ -36,8 +41,9 @@ function fetchProductsFromFirebase() {
             description: entry.description || '',
             category: entry.category || ''
           });
-        } else if (typeof entry === 'object') {
-          // Otherwise, treat as a category group (nested structure)
+        } 
+        // Category group (nested)
+        else if (typeof entry === 'object') {
           for (const subKey in entry) {
             const product = entry[subKey];
             if (product.name && product.price !== undefined) {
@@ -62,25 +68,26 @@ function fetchProductsFromFirebase() {
   });
 }
 
-
+// ✅ Call the function
 fetchProductsFromFirebase();
+
+
+// ✅ Format numbers with commas
 function formatNumberWithCommas(x) {
   if (x === null || x === undefined) return '';
-  if (typeof x === 'number') {
-    x = x.toString();
-  } else if (typeof x !== 'string') {
-    // If input is an object or anything else unexpected, return empty string to avoid recursion
-    return '';
-  }
+  x = x.toString();
   return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 
-  const searchInput = document.getElementById('searchInput');
-  const dropdown = document.getElementById('dropdown');
-  const cartTable = document.querySelector('#cartTable tbody');
+// ================= SEARCH & CART =================
 
-let cart = [];
+const searchInput = document.getElementById('searchInput');
+const dropdown = document.getElementById('dropdown');
+const cartTable = document.querySelector('#cartTable tbody');
+
+let cart = {};
+
 searchInput.addEventListener('input', function () {
   const query = this.value.trim().toLowerCase();
   dropdown.innerHTML = '';
@@ -96,7 +103,7 @@ searchInput.addEventListener('input', function () {
   matches.forEach(product => {
     const div = document.createElement('div');
     div.classList.add('dropdown-item');
-    div.textContent = `${product.name} - UGX ${product.price.toLocaleString()}`;
+    div.textContent = `${product.name} - UGX ${formatNumberWithCommas(product.price)}`;
     div.addEventListener('click', () => {
       addToCart(product);
       searchInput.value = '';
@@ -112,27 +119,17 @@ searchInput.addEventListener('input', function () {
     dropdown.appendChild(noMatch);
   }
 });
+
+
+// ✅ Add to Cart Function
 function addToCart(product) {
-  // If cart is not defined or not an object, initialize it
-  if (typeof cart !== 'object' || cart === null) {
-    cart = {};
-  }
-
-  // Check if item already exists in the cart
-  if (cart[product.name]) {
-    cart[product.name].qty += 1; // Increment quantity
+  if (!cart[product.name]) {
+    cart[product.name] = { ...product, qty: 1 };
   } else {
-    // Add new item
-    cart[product.name] = {
-      name: product.name,
-      price: product.price,
-      qty: 1
-    };
+    cart[product.name].qty += 1;
   }
-
-  renderCart(); // Refresh cart display
+  renderCart();
 }
-
 
 
   function removeFromCart(name) {
