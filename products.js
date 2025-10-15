@@ -18,108 +18,123 @@ const auth = getAuth(app);
 const storage = getStorage(app);
  const db = getDatabase(app);
   const dbRef = ref(db);
-// ✅ Use let instead of const
+// ====================== GLOBAL VARIABLES ======================
 let products = [];
+let cart = {};
+let searchTimeout;
 
-// ✅ Fetch Products from Firebase
-function fetchProductsFromFirebase() {
-  products = []; // clear before reloading
+// ====================== FETCH PRODUCTS ======================
+async function fetchProductsFromFirebase() {
+  products = []; // reset before reload
 
-  get(child(dbRef, 'products')).then(snapshot => {
-    if (snapshot.exists()) {
-      const data = snapshot.val();
+  try {
+    const snapshot = await get(child(dbRef, 'products'));
 
-      for (const key in data) {
-        const entry = data[key];
+    if (!snapshot.exists()) {
+      console.warn("⚠️ No products found in Firebase.");
+      return false;
+    }
 
-        // Direct product entry
-        if (entry.name && entry.price !== undefined) {
-          products.push({
-            name: entry.name,
-            price: parseInt(entry.price) || 0,
-            image: entry.image || '',
-            description: entry.description || '',
-            category: entry.category || ''
-          });
-        } 
-        // Category group (nested)
-        else if (typeof entry === 'object') {
-          for (const subKey in entry) {
-            const product = entry[subKey];
-            if (product.name && product.price !== undefined) {
-              products.push({
-                name: product.name,
-                price: parseInt(product.price) || 0,
-                image: product.image || '',
-                description: product.description || '',
-                category: product.category || key
-              });
-            }
-          }
-        }
+    const data = snapshot.val();
+
+    // ✅ Flatten simple product structure
+    for (const key in data) {
+      const p = data[key];
+      if (p && p.name && p.price !== undefined) {
+        products.push({
+          id: key,
+          name: p.name,
+          price: parseInt(p.price) || 0,
+          description: p.description || '',
+          category: p.category || '',
+          image: p.image || ''
+        });
+      }
+    }
+
+    console.log(`✅ Loaded ${products.length} products.`);
+    return true;
+  } catch (error) {
+    console.error("🚨 Error fetching products:", error);
+    return false;
+  }
+}
+
+// ====================== INITIALIZE ======================
+async function initApp() {
+  console.log("⏳ Fetching products...");
+  const loaded = await fetchProductsFromFirebase();
+
+  if (loaded && products.length > 0) {
+    console.log("✅ Products ready — attaching search input listener...");
+    attachSearchListener();
+  } else {
+    console.error("❌ Could not load products. Retrying in 2s...");
+    setTimeout(initApp, 2000); // 🔁 retry in case Firebase was slow
+  }
+}
+
+// ====================== SEARCH HANDLER ======================
+function attachSearchListener() {
+  const searchInput = document.getElementById('searchInput');
+  const dropdown = document.getElementById('dropdown');
+
+  searchInput.addEventListener('input', function () {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const query = this.value.trim().toLowerCase();
+      dropdown.innerHTML = '';
+
+      if (!query) {
+        dropdown.style.display = 'none';
+        return;
       }
 
-      console.log("✅ Products loaded from Firebase:", products);
-    } else {
-      console.log("❌ No products found in Firebase.");
-    }
-  }).catch(error => {
-    console.error("🚨 Error fetching products:", error);
+      // ✅ Prevent searching empty data
+      if (!Array.isArray(products) || products.length === 0) {
+        console.warn("⚠️ No products loaded yet.");
+        dropdown.style.display = 'none';
+        return;
+      }
+
+      const matches = products.filter(p =>
+        p.name && p.name.toLowerCase().includes(query)
+      );
+
+      dropdown.style.display = matches.length ? 'block' : 'none';
+
+      if (matches.length === 0) {
+        const noMatch = document.createElement('div');
+        noMatch.classList.add('dropdown-item');
+        noMatch.textContent = 'No matching products found.';
+        dropdown.appendChild(noMatch);
+        return;
+      }
+
+      matches.forEach(product => {
+        const div = document.createElement('div');
+        div.classList.add('dropdown-item');
+        div.textContent = `${product.name} - UGX ${formatNumberWithCommas(product.price)}`;
+        div.addEventListener('click', () => {
+          addToCart(product);
+          searchInput.value = '';
+          dropdown.style.display = 'none';
+        });
+        dropdown.appendChild(div);
+      });
+    }, 150); // debounce delay
   });
 }
 
-// ✅ Call the function
-fetchProductsFromFirebase();
-
-
-// ✅ Format numbers with commas
+// ====================== UTILITIES ======================
 function formatNumberWithCommas(x) {
   if (x === null || x === undefined) return '';
   x = x.toString();
   return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-
-// ================= SEARCH & CART =================
-
-const searchInput = document.getElementById('searchInput');
-const dropdown = document.getElementById('dropdown');
-const cartTable = document.querySelector('#cartTable tbody');
-
-let cart = {};
-
-searchInput.addEventListener('input', function () {
-  const query = this.value.trim().toLowerCase();
-  dropdown.innerHTML = '';
-
-  if (!query) {
-    dropdown.style.display = 'none';
-    return;
-  }
-
-  const matches = products.filter(p => p.name && p.name.toLowerCase().includes(query));
-  dropdown.style.display = matches.length ? 'block' : 'none';
-
-  matches.forEach(product => {
-    const div = document.createElement('div');
-    div.classList.add('dropdown-item');
-    div.textContent = `${product.name} - UGX ${formatNumberWithCommas(product.price)}`;
-    div.addEventListener('click', () => {
-      addToCart(product);
-      searchInput.value = '';
-      dropdown.style.display = 'none';
-    });
-    dropdown.appendChild(div);
-  });
-
-  if (matches.length === 0) {
-    const noMatch = document.createElement('div');
-    noMatch.classList.add('dropdown-item');
-    noMatch.textContent = 'No matching products found.';
-    dropdown.appendChild(noMatch);
-  }
-});
-
+// ====================== START APP ======================
+initApp();
 
 // ✅ Add to Cart Function
 function addToCart(product) {
@@ -136,15 +151,16 @@ function addToCart(product) {
   delete cart[name];
   renderCart();
 }
+const cartTableBody = document.querySelector('#cartTable tbody');
+const overallTotalSpan = document.getElementById('overallTotal');
 
+// Render the cart
 function renderCart() {
-  cartTable.innerHTML = '';
+  cartTableBody.innerHTML = '';
   let overallTotal = 0;
 
   for (const key in cart) {
     const item = cart[key];
-
-    // Skip invalid or empty items
     if (!item || !item.name || item.qty == null || item.price == null) continue;
 
     const itemTotal = item.qty * item.price;
@@ -152,14 +168,189 @@ function renderCart() {
 
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td>${item.name}</td>
-      <td><input type="number" min="1" value="${item.qty}" data-name="${item.name}" class="qty-input" style="width:60px;"></td>
-      <td><input type="number" min="0" value="${item.price}" data-name="${item.name}" class="price-input" style="width:80px;"></td>
-      <td id="total-${item.name}">${formatNumberWithCommas(itemTotal)}</td>
-      <td><button class="delete-btn" data-name="${item.name}" style="padding: 4px 8px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button></td>
+      <td class="cart-name">${item.name}</td>
+      <td><input type="number" min="1" value="${item.qty}" data-name="${item.name}" class="qty-input"></td>
+      <td><input type="number" min="0" value="${item.price}" data-name="${item.name}" class="price-input"></td>
+      <td id="total-${item.name}" class="cart-total">${formatNumberWithCommas(itemTotal)}</td>
+      <td><button class="delete-btn" data-name="${item.name}">Delete</button></td>
     `;
-    cartTable.appendChild(row);
+    cartTableBody.appendChild(row);
   }
+
+  overallTotalSpan.textContent = formatNumberWithCommas(overallTotal);
+}
+
+// Event delegation for delete, qty, price changes
+cartTableBody.addEventListener('click', e => {
+  if (e.target.classList.contains('delete-btn')) {
+    const name = e.target.dataset.name;
+    delete cart[name];
+    renderCart();
+  }
+});
+
+cartTableBody.addEventListener('input', e => {
+  const name = e.target.dataset.name;
+  if (!name || !cart[name]) return;
+
+  if (e.target.classList.contains('qty-input')) {
+    const qty = parseInt(e.target.value);
+    if (qty > 0) {
+      cart[name].qty = qty;
+      updateTotal(name);
+      renderCart();
+    }
+  }
+
+  if (e.target.classList.contains('price-input')) {
+    const price = parseInt(e.target.value);
+    if (price >= 0) {
+      cart[name].price = price;
+      updateTotal(name);
+      renderCart();
+    }
+  }
+});
+
+// Update a single item's total
+function updateTotal(name) {
+  const item = cart[name];
+  const totalCell = document.getElementById(`total-${name}`);
+  if (totalCell) {
+    totalCell.textContent = `UGX ${formatNumberWithCommas(item.qty * item.price)}`;
+  }
+}
+
+// Print listener (attach once)
+document.getElementById('printBtn').addEventListener('click', () => {
+  const cartRows = cartTableBody.querySelectorAll('tr');
+  const now = new Date();
+  const dateStr = now.toLocaleString();
+  const customerName = document.getElementById('customerName')?.value || '---';
+  const customerDestination = document.getElementById('customerDestination')?.value || '---';
+  const receiptNumber = generateReceiptNumber ? generateReceiptNumber() : `REC-${Date.now()}`;
+
+  let itemsHTML = '';
+  let grandTotal = 0;
+
+  cartRows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length < 4) return;
+
+    const name = cells[0].textContent.trim();
+    const qty = Number(cells[1].querySelector('input')?.value || cells[1].textContent.trim());
+    const price = Number(cells[2].querySelector('input')?.value || cells[2].textContent.replace(/,/g,''));
+    const total = qty * price;
+    grandTotal += total;
+
+    itemsHTML += `<tr>
+      <td>${name}</td>
+      <td>${qty}</td>
+      <td>${price.toLocaleString()}</td>
+      <td>${total.toLocaleString()}</td>
+    </tr>`;
+  });
+
+  const receiptHTML = `
+<html>
+  <head>
+    <title>KWIKLINK XPRESS Receipt</title>
+    <style>
+      body { 
+        font-family: 'Courier New', monospace; 
+        width: 320px; /* typical 80mm printer width */
+        margin: 0 auto; 
+        padding: 10px; 
+        color: #000;
+      }
+      .logo { text-align: center; margin-bottom: 5px; }
+      .logo img { width: 80px; height: auto; }
+      h2, p { text-align: center; margin: 2px 0; }
+      .company { font-size: 11px; text-align: center; margin-bottom: 8px; }
+      .company p { margin: 1px 0; }
+      .customer { font-size: 12px; margin-bottom: 8px; }
+      .customer p { margin: 1px 0; }
+      table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        font-size: 12px; 
+        margin-bottom: 6px; 
+      }
+      thead tr { border-bottom: 1px dashed #000; }
+      th, td { 
+        padding: 2px 0; 
+        font-family: 'Courier New', monospace; 
+      }
+      th.item, td.item { width: 50%; }
+      th.qty, td.qty { width: 10%; text-align: center; }
+      th.price, td.price { width: 20%; text-align: right; }
+      th.total, td.total { width: 20%; text-align: right; }
+      td.item { 
+        white-space: nowrap; 
+        overflow: hidden; 
+        text-overflow: ellipsis;
+      }
+      tfoot td { border-top: 2px solid #000; font-weight: bold; }
+      .grand-total { text-align: right; font-weight: bold; }
+      .footer { text-align: center; font-size: 11px; margin-top: 10px; }
+    </style>
+  </head>
+  <body>
+    <div class="logo">
+      <img src="kwik-link-transparent.png" alt="KWIKLINK XPRESS">
+    </div>
+    <h2>KWIKLINK XPRESS</h2>
+    <div class="company">
+      <p>123 Kampala Rd, Kampala, Uganda</p>
+      <p>Tel: +256 702 587589 | Email: info@kwiklink.com</p>
+      <p>Website: www.kwiklink.com</p>
+    </div>
+    <div class="customer">
+      <p><strong>Receipt #: </strong>${receiptNumber}</p>
+      <p><strong>Date:</strong> ${dateStr}</p>
+      <p><strong>Customer:</strong> ${customerName}</p>
+      <p><strong>Destination:</strong> ${customerDestination}</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th class="item">Item</th>
+          <th class="qty">Qty</th>
+          <th class="price">Price</th>
+          <th class="total">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemsHTML}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="grand-total">Grand Total:</td>
+          <td>${grandTotal.toLocaleString()}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="footer">
+      <p>Thank you for shopping with us!</p>
+      <p>KWIKLINK XPRESS</p>
+      <p>www.kwiklink.com | +256 742 108061</p>
+    </div>
+  </body>
+</html>
+`;
+
+  const printWindow = window.open('', '', 'width=400,height=600');
+  printWindow.document.write(receiptHTML);
+  printWindow.document.close();
+  printWindow.print();
+});
+
+// Initial render
+renderCart();
+
+
 
   // ✅ Show only the total of currently rendered items
   document.getElementById('overallTotal').textContent = formatNumberWithCommas(overallTotal);
@@ -188,7 +379,7 @@ function renderCart() {
       }
     });
   });
-}
+
 
 // Event delegation for delete buttons:
 cartTable.addEventListener('click', e => {
@@ -198,14 +389,6 @@ cartTable.addEventListener('click', e => {
     renderCart();
   }
 });
-  function updateTotal(name) {
-    const item = cart[name];
-    const totalCell = document.getElementById(`total-${name}`);
-    if (totalCell) {
-      totalCell.textContent = `UGX ${item.qty * item.price}`;
-    }
-  }
-
 
   document.addEventListener('click', function (e) {
     if (!dropdown.contains(e.target) && e.target !== searchInput) {
@@ -444,11 +627,11 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 let currentReceiptId = null;
 
+
+
 const receiptSearchInput = document.getElementById('receiptSearchInput');
 const customerNameInput = document.getElementById('customerName');
 const customerDestinationInput = document.getElementById('customerDestination');
-const cartTableBody = document.querySelector('#cartTable tbody');
-const overallTotalSpan = document.getElementById('overallTotal');
 
 receiptSearchInput.addEventListener('keydown', function (event) {
   if (event.key === 'Enter') {
@@ -729,18 +912,28 @@ nextBtn.addEventListener('click', () => {
 });
 const jumpToLatestBtn = document.getElementById('jumpToLatestBtn');
 
-jumpToLatestBtn.addEventListener('click', () => {
+jumpToLatestBtn.addEventListener('click', async () => {
+  // If the list is empty, try to fetch receipts first
+  if (!receiptList || receiptList.length === 0) {
+    await fetchReceipts(); // <--- make sure this function loads receiptList
+  }
+
   if (receiptList.length === 0) {
     clearReceiptInputs();
     currentIndex = 0;
-  } else {
-    currentIndex = receiptList.length - 1;
-    const latestReceipt = receiptList[currentIndex];
-    populateReceipt(latestReceipt.data, latestReceipt.id);
+    showMessage("No receipts found.");
+    updateNavButtons();
+    return;
   }
+
+  // Jump to the last (latest) receipt
+  currentIndex = receiptList.length - 1;
+  const latestReceipt = receiptList[currentIndex];
+  populateReceipt(latestReceipt.data, latestReceipt.id);
 
   updateNavButtons();
 });
+
 
 prevBtn.addEventListener('click', () => {
   if (receiptList.length === 0 || currentIndex <= 0) {
@@ -856,23 +1049,30 @@ function generateReceiptNumber() {
   return `REC-${datePart}-${randomPart}`;
 }
 
+
 document.getElementById('newReceiptBtn').addEventListener('click', () => {
-  currentReceiptId = ''; // This is a new receipt
+  currentReceiptId = '';
   currentIndex = -1;
   cart = {};
 
   // Clear inputs
   customerNameInput.value = '';
   customerDestinationInput.value = '';
-  cartTableBody.innerHTML = '<tr><td colspan="5">No items in cart.</td></tr>';
-  overallTotalSpan.textContent = '0';
   receiptSearchInput.value = '';
+
+  // Clear the cart visually
+  if (typeof renderCart === 'function') {
+    renderCart(); // re-render empty cart
+  } else {
+    cartTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999;">No items in cart.</td></tr>';
+  }
+
+  // Reset totals
+  overallTotalSpan.textContent = '0';
 
   // Generate and display new receipt number
   const newReceiptNumber = generateReceiptNumber();
   document.getElementById('orderIdDisplay').textContent = `New Receipt: ${newReceiptNumber}`;
-
-  // Optionally store this number somewhere if needed later
 });
 
 

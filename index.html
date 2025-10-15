@@ -7,7 +7,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,600" /><link rel="stylesheet" href="https://public.codepenassets.com/css/reset-2.0.min.css">
 <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css'>
 <link rel='stylesheet' href='https://cdn.jsdelivr.net/jquery.selectric/1.10.1/selectric.css'>
-<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css'><link rel="stylesheet" href="./style.css">
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css'><link rel="stylesheet" href="./product.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 </head>
 <body>
@@ -27,7 +28,7 @@
 			<div class="sidebar-sticky">
 				<ul class="nav flex-column">
 					<li class="nav-item">
-						<a class="nav-link active" href="#">
+						<a class="nav-link" href="index.html">
                   <i class="zmdi zmdi-widgets"></i>
                   Dashboard <span class="sr-only">(current)</span>
                 </a>
@@ -39,7 +40,7 @@
                 </a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="#">
+						<a class="nav-link active" href="index.html">
                   <i class="zmdi zmdi-shopping-cart"></i>
                   Products
                 </a>
@@ -98,300 +99,147 @@
 				</ul>
 			</div>
 		</nav>
-		<main role="main" class="col-md-9 ml-sm-auto col-lg-10 my-3">
-			<div class="card-list">
-				<div class="row">
-					<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
-						<div class="card blue">
-							<div class="title">all projects</div>
-							<i class="zmdi zmdi-upload"></i>
-							<div class="value">89</div>
-							<div class="stat"><b>13</b>% increase</div>
-						</div>
-					</div>
-					<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
-						<div class="card green">
-							<div class="title">team members</div>
-							<i class="zmdi zmdi-upload"></i>
-							<div class="value">5,990</div>
-							<div class="stat"><b>4</b>% increase</div>
-						</div>
-					</div>
-					<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
-						<div class="card orange">
-							<div class="title">total budget</div>
-							<i class="zmdi zmdi-download"></i>
-							<div class="value">$80,990</div>
-							<div class="stat"><b>13</b>% decrease</div>
-						</div>
-					</div>
-					<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4">
-						<div class="card red">
-							<div class="title">new customers</div>
-							<i class="zmdi zmdi-download"></i>
-							<div class="value">3</div>
-							<div class="stat"><b>13</b>% decrease</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="projects mb-4">
-				<div class="projects-inner">
-					<header class="projects-header">
-						<div class="title">Ongoing Projects</div>
-						<div class="count">| 32 Projects</div>
-						<i class="zmdi zmdi-download"></i>
-					</header>
-					<table class="projects-table">
-						<thead>
-							<tr>
-								<th>Project</th>
-								<th>Deadline</th>
-								<th>Leader + Team</th>
-								<th>Budget</th>
-								<th>Status</th>
-								<th class="text-right">Actions</th>
-							</tr>
-						</thead>
-						<tr>
-							<td>
-								<p>New Dashboard</p>
-								<p>Google</p>
-							</td>
-							<td>
-								<p>17th Oct, 15</p>
-								<p class="text-danger">Overdue</p>
-							</td>
-							<td class="member">
-								<figure><img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/584938/people_8.png" /></figure>
-								<div class="member-info">
-									<p>Myrtle Erickson</p>
-									<p>UK Design Team</p>
-								</div>
-							</td>
-							<td>
-								<p>$4,670</p>
-								<p>Paid</p>
-							</td>
-							<td class="status">
-								<span class="status-text status-orange">In progress</span>
-							</td>
-							<td>
-								<form class="form" action="#" method="POST">
-								<select class="action-box">
-									<option>Actions</option>
-									<option>Start project</option>
-									<option>Send for QA</option>
-									<option>Send invoice</option>
-								</select>
-								</form>
-							</td>
-						</tr>
-						<tr class="danger-item">
-							<td>
-								<p>New Dashboard</p>
-								<p>Google</p>
-							</td>
-							<td>
-								<p>17th Oct, 15</p>
-								<p class="text-danger">Overdue</p>
-							</td>
-							<td class="member">
-								<figure><img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/584938/people_8.png" /></figure>
-								<div class="member-info">
-									<p>Myrtle Erickson</p>
-									<p>UK Design Team</p>
-								</div>
-							</td>
-							<td>
-								<p>$4,670</p>
-								<p>Paid</p>
-							</td>
-							<td class="status">
-								<span class="status-text status-red">Blocked</span>
-							</td>
-							<td>
-								<form class="form" action="#" method="POST">
-									<select class="action-box">
-										<option>Actions</option>
-										<option>Start project</option>
-										<option>Send for QA</option>
-										<option>Send invoice</option>
-									</select>
-								</form>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<p>New Dashboard</p>
-								<p>Google</p>
-							</td>
-							<td>
-								<p>17th Oct, 15</p>
-								<p class="text-danger">Overdue</p>
-							</td>
-							<td class="member">
-								<figure><img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/584938/people_8.png" /></figure>
-								<div class="member-info">
-									<p>Myrtle Erickson</p>
-									<p>UK Design Team</p>
-								</div>
-							</td>
-							<td>
-								<p>$4,670</p>
-								<p>Paid</p>
-							</td>
-							<td class="status">
-								<span class="status-text status-orange">In progress</span>
-							</td>
-							<td>
-								<form class="form" action="#" method="POST">
-									<select class="action-box">
-						  <option>Actions</option>
-						  <option>Start project</option>
-						  <option>Send for QA</option>
-						  <option>Send invoice</option>
-						</select>
-								</form>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<p>New Dashboard</p>
-								<p>Google</p>
-							</td>
-							<td>
-								<p>17th Oct, 15</p>
-								<p class="text-danger">Overdue</p>
-							</td>
-							<td class="member">
-								<figure><img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/584938/people_8.png" /></figure>
-								<div class="member-info">
-									<p>Myrtle Erickson</p>
-									<p>UK Design Team</p>
-								</div>
-							</td>
-							<td>
-								<p>$4,670</p>
-								<p>Paid</p>
-							</td>
-							<td class="status">
-								<span class="status-text status-blue">Early stages</span>
-							</td>
-							<td>
-								<form class="form" action="#" method="POST">
-									<select class="action-box">
-						  <option>Actions</option>
-						  <option>Start project</option>
-						  <option>Send for QA</option>
-						  <option>Send invoice</option>
-						</select>
-								</form>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<p>New Dashboard</p>
-								<p>Google</p>
-							</td>
-							<td>
-								<p>17th Oct, 15</p>
-								<p class="text-danger">Overdue</p>
-							</td>
-							<td class="member">
-								<figure><img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/584938/people_8.png" /></figure>
-								<div class="member-info">
-									<p>Myrtle Erickson</p>
-									<p>UK Design Team</p>
-								</div>
-							</td>
-							<td>
-								<p>$4,670</p>
-								<p>Paid</p>
-							</td>
-							<td class="status">
-								<span class="status-text status-orange">In progress</span>
-							</td>
-							<td>
-								<form class="form" action="#" method="POST">
-									<select class="action-box">
-						  <option>Actions</option>
-						  <option>Start project</option>
-						  <option>Send for QA</option>
-						  <option>Send invoice</option>
-						</select>
-								</form>
-							</td>
-						</tr>
-					</table>
-				</div>
-			</div>
-			<div class="chart-data">
-				<div class="row">
-					<div class="col-12 col-md-4">
-						<div class="chart radar-chart dark">
-							<div class="actions">
-								<button type="button" class="btn btn-link" 
-										  data-toggle="dropdown" 
-										  aria-haspopup="true" aria-expanded="false">
-									 <i class="zmdi zmdi-more-vert"></i>
-								</button>
-								<div class="dropdown-menu dropdown-menu-right">
-									<button class="dropdown-item" type="button">Action</button>
-									<button class="dropdown-item" type="button">Another action</button>
-									<button class="dropdown-item" type="button">Something else here</button>
-								</div>
-							</div>
-							<h3 class="title">Household Expenditure</h3>
-							<p class="tagline">Yearly</p>
-							<canvas height="400" id="radarChartDark"></canvas>
-						</div>
-					</div>
-					<div class="col-12 col-md-4">
-						<div class="chart bar-chart light">
-							<div class="actions">
-								<button type="button" class="btn btn-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									 <i class="zmdi zmdi-more-vert"></i>
-								</button>
-								<div class="dropdown-menu dropdown-menu-right">
-									<button class="dropdown-item" type="button">Action</button>
-									<button class="dropdown-item" type="button">Another action</button>
-									<button class="dropdown-item" type="button">Something else here</button>
-								</div>
-							</div>
-							<h3 class="title">Monthly revenue</h3>
-							<p class="tagline">2015 (in thousands US$)</p>
-							<canvas height="400" id="barChartHDark"></canvas>
-						</div>
-					</div>
-					<div class="col-12 col-md-4">
-						<div class="chart doughnut-chart dark">
-							<div class="actions">
-								<button type="button" class="btn btn-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									 <i class="zmdi zmdi-more-vert"></i>
-								</button>
-								<div class="dropdown-menu dropdown-menu-right">
-									<button class="dropdown-item" type="button">Action</button>
-									<button class="dropdown-item" type="button">Another action</button>
-									<button class="dropdown-item" type="button">Something else here</button>
-								</div>
-							</div>
-							<h3 class="title">Exports of Goods</h3>
-							<p class="tagline">2015 (in billion US$)</p>
-							<canvas height="400" id="doughnutChartDark"></canvas>
-						</div>
-					</div>
-				</div>
-			</div>
-		</main>
-	</div>
+
+		<!-- Change main's class to match order.html width -->
+		<main role="main" class="col-md-10 ml-sm-auto col-lg-10 my-3">
+      <div class="logo-container">
+        <img src="kwik-link-transparent.png" alt="Company Logo" class="logo-image">
+      </div>
+      <div class="cart-header">
+  <h3>🛒 KWIKLINK XPRESS  POS</h3>
+  <span id="cartDate"></span>
+  <span id="orderIdDisplay"></span>
 </div>
+<!-- POS Top Bar -->
+<div class="top-bar">
+
+  <!-- Add Product Button -->
+  <button id="addProductBtn" class="pos-btn action">+ Add Product</button>
+
+  <!-- Navigation Buttons -->
+  <div class="nav-buttons">
+    <button id="prevBtn" class="pos-btn action">⬅️ Prev</button>
+    <button id="nextBtn" class="pos-btn action">Next ➡️</button>
+    <button id="jumpToLatestBtn" class="pos-btn action">Jump to Latest</button>
+  </div>
+
+  <!-- New Receipt -->
+  <button id="newReceiptBtn" class="pos-btn action">➕ New Receipt</button>
+
+  <!-- POS Action Buttons -->
+  <div class="pos-buttons">
+    <button id="deleteBtn" class="pos-btn action delete">🗑️ Delete Order</button>
+    <button id="saveReceiptBtn" class="pos-btn action save">💾 Save Receipt</button>
+    <button id="saveChangesBtn" class="pos-btn action update">💾 Save Changes</button>
+  </div>
+
+</div>
+
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <input type="text" id="searchInput" placeholder="🔍 Search product...">
+    <div id="dropdown" class="dropdown" style="display: none;"></div>
+  </div>
+  <!-- Receipt Search -->
+  <div class="receipt-section">
+    <input type="text" id="receiptSearchInput" placeholder="Search Receipt # e.g. REC-20250614-12345">
+  </div>
+
+ <div id="totalContainer" style="margin-bottom: 5px; font-weight: bold;">
+      Overall Total: UGX <span id="overallTotal">0</span>
+    </div>
+<div style="display: flex; gap: 40px; align-items: flex-start; margin-bottom: 20px;">
+ 
+
+  <!-- Customer Info Section -->
+  <div id="customerInfo" style="flex: 1; max-width: 300px;">
+  
+    <h3>Customer Details</h3>
+    <label for="customerName">Customer Name:</label><br>
+    <input type="text" id="customerName" placeholder="Enter customer name" style="width: 100%; padding: 6px; margin-bottom: 12px;"><br>
+
+    <label for="customerDestination">Destination:</label><br>
+    <input type="text" id="customerDestination" placeholder="Enter destination" style="width: 100%; padding: 6px;">
+  </div>
+<div class="cart-container">
+ <table id="cartTable">
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>Qty</th>
+      <th>Price</th>
+      <th>Total</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td colspan="5" style="text-align:center; color:#999;">No items in cart.</td>
+    </tr>
+  </tbody>
+</table>
+<span id="overallTotal"></span>
+<button id="printBtn">Print</button>
+
+
+  </div>
+
+
+<!-- Modal Structure -->
+<div class="modal" id="productModal">
+  <div class="modal-content">
+    <button class="close-btn" id="closeModal">X</button>
+    <h2>Add New Product</h2>
+    
+    <select id="productCategory" class="styled-input">
+      <option value="" disabled selected>Select Product Category</option>
+    </select>
+    
+    <input type="text" id="productName" placeholder="Product Name" class="styled-input">
+    <textarea id="productDescription" placeholder="Description" class="styled-textarea"></textarea>
+    <input type="number" id="productPrice" placeholder="Price" class="styled-input price-input">
+    
+    <button id="saveProduct" class="styled-button">Save Product</button>
+  </div>
+</div>
+
+
+<script>
+  const categories = [
+    "Back-Covers",
+    "Buttons",
+    "Camera-Glasses",
+    "Chesis",
+    "Finger-Prints",
+    "Glasses",
+    "Ports",
+    "accessories",
+    "electronics",
+    "gradeBScreens",
+    "newScreens",
+    "touches"
+  ];
+
+  const productCategorySelect = document.getElementById('productCategory');
+
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    productCategorySelect.appendChild(option);
+  });
+</script>
+    </main>
+
+</body>
+</html>
 <!-- partial -->
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js'></script>
 <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js'></script>
 <script src='https://cdn.jsdelivr.net/jquery.selectric/1.10.1/jquery.selectric.min.js'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js'></script><script  src="./script.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js'></script><script type="module"  src="./products.js"></script>
 
 </body>
 </html>
