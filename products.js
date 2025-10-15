@@ -264,7 +264,7 @@ document.getElementById('printBtn').addEventListener('click', () => {
         color: #000;
       }
       .logo { text-align: center; margin-bottom: 5px; }
-      .logo img { width: 80px; height: auto; }
+      .logo img { width: 85px; height: auto; }
       h2, p { text-align: center; margin: 2px 0; }
       .company { font-size: 11px; text-align: center; margin-bottom: 8px; }
       .company p { margin: 1px 0; }
@@ -301,9 +301,9 @@ document.getElementById('printBtn').addEventListener('click', () => {
     </div>
     <h2>KWIKLINK XPRESS</h2>
     <div class="company">
-      <p>123 Kampala Rd, Kampala, Uganda</p>
-      <p>Tel: +256 702 587589 | Email: info@kwiklink.com</p>
-      <p>Website: www.kwiklink.com</p>
+      <p>Temusewo Mpoza Lv2 Shop 311, Kampala, Uganda</p>
+      <p>Tel: +256 702 587589 | Email: info@kwiklinkxpress.com</p>
+      <p>Website: www.kwiklinkxpress.com</p>
     </div>
     <div class="customer">
       <p><strong>Receipt #: </strong>${receiptNumber}</p>
@@ -335,7 +335,7 @@ document.getElementById('printBtn').addEventListener('click', () => {
     <div class="footer">
       <p>Thank you for shopping with us!</p>
       <p>KWIKLINK XPRESS</p>
-      <p>www.kwiklink.com | +256 742 108061</p>
+      <p>www.kwiklinkxpress.com | +256 742 108061</p>
     </div>
   </body>
 </html>
