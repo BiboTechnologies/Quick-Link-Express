@@ -194,20 +194,26 @@ cartTableBody.addEventListener('input', e => {
   if (!name || !cart[name]) return;
 
   if (e.target.classList.contains('qty-input')) {
-    const qty = parseInt(e.target.value);
+    const qty = parseInt(e.target.value) || 0;
     if (qty > 0) {
       cart[name].qty = qty;
       updateTotal(name);
-      renderCart();
+      // ❌ Remove renderCart()
+      // ✅ Instead, update just that row’s total cell
+      const totalCell = e.target.closest('tr').querySelector('.item-total');
+      //if (totalCell) totalCell.textContent = cart[name].qty * cart[name].price;
     }
   }
 
   if (e.target.classList.contains('price-input')) {
-    const price = parseInt(e.target.value);
+    const price = parseInt(e.target.value) || 0;
     if (price >= 0) {
       cart[name].price = price;
       updateTotal(name);
-      renderCart();
+      // ❌ Remove renderCart()
+      // ✅ Update only the total cell
+      const totalCell = e.target.closest('tr').querySelector('.item-total');
+      if (totalCell) totalCell.textContent = cart[name].qty * cart[name].price;
     }
   }
 });
