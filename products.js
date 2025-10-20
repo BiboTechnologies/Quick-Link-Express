@@ -126,12 +126,6 @@ function attachSearchListener() {
   });
 }
 
-// ====================== UTILITIES ======================
-function formatNumberWithCommas(x) {
-  if (x === null || x === undefined) return '';
-  x = x.toString();
-  return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
 
 // ====================== START APP ======================
 initApp();
@@ -154,7 +148,70 @@ function addToCart(product) {
 const cartTableBody = document.querySelector('#cartTable tbody');
 const overallTotalSpan = document.getElementById('overallTotal');
 
-// Render the cart
+// ===================== CART LOGIC =====================
+
+// Listen for delete, qty, and price changes
+cartTableBody.addEventListener('click', e => {
+  if (e.target.classList.contains('delete-btn')) {
+    const name = e.target.dataset.name;
+    delete cart[name];
+    renderCart();
+    updateOverallTotal(); // refresh totals
+  }
+});
+
+cartTableBody.addEventListener('input', e => {
+  const name = e.target.dataset.name;
+  if (!name || !cart[name]) return;
+
+  if (e.target.classList.contains('qty-input')) {
+    const qty = parseInt(e.target.value) || 0;
+    if (qty > 0) {
+      cart[name].qty = qty;
+      updateRowTotal(name);
+      updateOverallTotal();
+    }
+  }
+
+  if (e.target.classList.contains('price-input')) {
+    const price = parseInt(e.target.value) || 0;
+    if (price >= 0) {
+      cart[name].price = price;
+      updateRowTotal(name);
+      updateOverallTotal();
+    }
+  }
+});
+
+
+// --- Update a single item's total ---
+function updateRowTotal(name) {
+  const item = cart[name];
+  const totalCell = document.getElementById(`total-${CSS.escape(name)}`);
+  if (totalCell) {
+    const total = item.qty * item.price;
+    totalCell.textContent = `${formatNumberWithCommas(total)}`;
+
+    // Highlight animation
+    totalCell.classList.add('updated');
+    setTimeout(() => totalCell.classList.remove('updated'), 300);
+  }
+}
+
+function updateOverallTotal() {
+  let overall = 0;
+
+  // Loop through all total cells
+  document.querySelectorAll('.cart-total').forEach(td => {
+    const text = td.textContent.replace(/[^\d.]/g, ''); // remove UGX and commas
+    const value = parseFloat(text) || 0;
+    overall += value;
+  });
+
+  overallTotalSpan.textContent = formatNumberWithCommas(overall);
+}
+
+
 function renderCart() {
   cartTableBody.innerHTML = '';
   let overallTotal = 0;
@@ -166,13 +223,16 @@ function renderCart() {
     const itemTotal = item.qty * item.price;
     overallTotal += itemTotal;
 
+    // Use a consistent safe name for both id and data-name
+    const safeName = item.name.replace(/\W+/g, '_'); // e.g. "Panadol Extra" -> "Panadol_Extra"
+
     const row = document.createElement('tr');
     row.innerHTML = `
       <td class="cart-name">${item.name}</td>
-      <td><input type="number" min="1" value="${item.qty}" data-name="${item.name}" class="qty-input"></td>
-      <td><input type="number" min="0" value="${item.price}" data-name="${item.name}" class="price-input"></td>
-      <td id="total-${item.name}" class="cart-total">${formatNumberWithCommas(itemTotal)}</td>
-      <td><button class="delete-btn" data-name="${item.name}">Delete</button></td>
+      <td><input type="number" min="1" value="${item.qty}" data-name="${safeName}" class="qty-input"></td>
+      <td><input type="number" min="0" value="${item.price}" data-name="${safeName}" class="price-input"></td>
+      <td id="total-${safeName}" class="cart-total">UGX ${formatNumberWithCommas(itemTotal)}</td>
+      <td><button class="delete-btn" data-name="${safeName}">Delete</button></td>
     `;
     cartTableBody.appendChild(row);
   }
@@ -180,48 +240,25 @@ function renderCart() {
   overallTotalSpan.textContent = formatNumberWithCommas(overallTotal);
 }
 
-// Event delegation for delete, qty, price changes
-cartTableBody.addEventListener('click', e => {
-  if (e.target.classList.contains('delete-btn')) {
-    const name = e.target.dataset.name;
-    delete cart[name];
-    renderCart();
-  }
-});
 
-cartTableBody.addEventListener('input', e => {
-  const name = e.target.dataset.name;
-  if (!name || !cart[name]) return;
 
-  if (e.target.classList.contains('qty-input')) {
-    const qty = parseInt(e.target.value);
-    if (qty > 0) {
-      cart[name].qty = qty;
-      updateTotal(name);
-      renderCart();
-    }
-  }
-
-  if (e.target.classList.contains('price-input')) {
-    const price = parseInt(e.target.value);
-    if (price >= 0) {
-      cart[name].price = price;
-      updateTotal(name);
-      renderCart();
-    }
-  }
-});
-
-// Update a single item's total
-function updateTotal(name) {
-  const item = cart[name];
-  const totalCell = document.getElementById(`total-${name}`);
-  if (totalCell) {
-    totalCell.textContent = `UGX ${formatNumberWithCommas(item.qty * item.price)}`;
-  }
+// --- Format numbers ---
+function formatNumberWithCommas(x) {
+  if (x == null) return '0';
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-// Print listener (attach once)
+// ===================== ANIMATION STYLE =====================
+const style = document.createElement('style');
+style.textContent = `
+  .updated {
+    background-color: #fffbcc;
+    transition: background-color 0.3s ease;
+  }
+`;
+document.head.appendChild(style);
+
+// ===================== PRINT RECEIPT =====================
 document.getElementById('printBtn').addEventListener('click', () => {
   const cartRows = cartTableBody.querySelectorAll('tr');
   const now = new Date();
@@ -239,7 +276,7 @@ document.getElementById('printBtn').addEventListener('click', () => {
 
     const name = cells[0].textContent.trim();
     const qty = Number(cells[1].querySelector('input')?.value || cells[1].textContent.trim());
-    const price = Number(cells[2].querySelector('input')?.value || cells[2].textContent.replace(/,/g,''));
+    const price = Number(cells[2].querySelector('input')?.value || cells[2].textContent.replace(/,/g, ''));
     const total = qty * price;
     grandTotal += total;
 
@@ -258,7 +295,7 @@ document.getElementById('printBtn').addEventListener('click', () => {
     <style>
       body { 
         font-family: 'Courier New', monospace; 
-        width: 320px; /* typical 80mm printer width */
+        width: 320px; 
         margin: 0 auto; 
         padding: 10px; 
         color: #000;
@@ -267,29 +304,14 @@ document.getElementById('printBtn').addEventListener('click', () => {
       .logo img { width: 85px; height: auto; }
       h2, p { text-align: center; margin: 2px 0; }
       .company { font-size: 11px; text-align: center; margin-bottom: 8px; }
-      .company p { margin: 1px 0; }
       .customer { font-size: 12px; margin-bottom: 8px; }
-      .customer p { margin: 1px 0; }
-      table { 
-        width: 100%; 
-        border-collapse: collapse; 
-        font-size: 12px; 
-        margin-bottom: 6px; 
-      }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 6px; }
       thead tr { border-bottom: 1px dashed #000; }
-      th, td { 
-        padding: 2px 0; 
-        font-family: 'Courier New', monospace; 
-      }
+      th, td { padding: 2px 0; }
       th.item, td.item { width: 50%; }
       th.qty, td.qty { width: 10%; text-align: center; }
       th.price, td.price { width: 20%; text-align: right; }
       th.total, td.total { width: 20%; text-align: right; }
-      td.item { 
-        white-space: nowrap; 
-        overflow: hidden; 
-        text-overflow: ellipsis;
-      }
       tfoot td { border-top: 2px solid #000; font-weight: bold; }
       .grand-total { text-align: right; font-weight: bold; }
       .footer { text-align: center; font-size: 11px; margin-top: 10px; }
@@ -321,9 +343,7 @@ document.getElementById('printBtn').addEventListener('click', () => {
           <th class="total">Total</th>
         </tr>
       </thead>
-      <tbody>
-        ${itemsHTML}
-      </tbody>
+      <tbody>${itemsHTML}</tbody>
       <tfoot>
         <tr>
           <td colspan="3" class="grand-total">Grand Total:</td>
@@ -347,48 +367,9 @@ document.getElementById('printBtn').addEventListener('click', () => {
   printWindow.print();
 });
 
-// Initial render
+// ===================== INITIAL LOAD =====================
 renderCart();
-
-
-
-  // ✅ Show only the total of currently rendered items
-  document.getElementById('overallTotal').textContent = formatNumberWithCommas(overallTotal);
-
-  // Event listeners (same)
-  document.querySelectorAll('.qty-input').forEach(input => {
-    input.addEventListener('change', (e) => {
-      const name = e.target.dataset.name;
-      const newQty = parseInt(e.target.value);
-      if (newQty > 0) {
-        cart[name].qty = newQty;
-        updateTotal(name);
-        renderCart(); // Refresh total
-      }
-    });
-  });
-
-  document.querySelectorAll('.price-input').forEach(input => {
-    input.addEventListener('change', (e) => {
-      const name = e.target.dataset.name;
-      const newPrice = parseInt(e.target.value);
-      if (newPrice >= 0) {
-        cart[name].price = newPrice;
-        updateTotal(name);
-        renderCart(); // Refresh total
-      }
-    });
-  });
-
-
-// Event delegation for delete buttons:
-cartTable.addEventListener('click', e => {
-  if (e.target.classList.contains('delete-btn')) {
-    const name = e.target.dataset.name;
-    delete cart[name];
-    renderCart();
-  }
-});
+updateOverallTotal();
 
   document.addEventListener('click', function (e) {
     if (!dropdown.contains(e.target) && e.target !== searchInput) {
@@ -804,34 +785,38 @@ function bindCartInputEvents() {
   });
 }
 
-function updateItemTotal() {
-  const row = this.closest('tr');
-  const name = this.dataset.name;
+// Attach one listener to the entire table body
+cartTableBody.addEventListener('input', function (e) {
+  if (e.target.classList.contains('qty-input') || e.target.classList.contains('price-input')) {
+    updateItemTotal(e.target);
+  }
+});
+
+function updateItemTotal(element) {
+  const row = element.closest('tr');
+  const safeName = element.dataset.name;
   const qtyInput = row.querySelector('.qty-input');
   const priceInput = row.querySelector('.price-input');
-  const totalCell = row.querySelector(`#total-${name}`);
+  const totalCell = document.getElementById(`total-${safeName}`);
 
-  const qty = parseInt(qtyInput.value) || 0;
-  const price = parseInt(priceInput.value) || 0;
+  const qty = parseFloat(qtyInput.value) || 0;
+  const price = parseFloat(priceInput.value) || 0;
   const total = qty * price;
 
-  totalCell.textContent = `UGX ${total.toLocaleString()}`;
+  if (totalCell) {
+    totalCell.textContent = `UGX ${formatNumberWithCommas(total)}`;
+  }
 
   updateOverallTotal();
 }
+cartTableBody.addEventListener('input', function (e) {
+  if (e.target.classList.contains('qty-input') || e.target.classList.contains('price-input')) {
+    updateItemTotal(e.target);
+  }
+});
 
-function updateOverallTotal() {
-  let overallTotal = 0;
 
-  const rows = document.querySelectorAll('#cartTable tbody tr');
-  rows.forEach(row => {
-    const qty = parseInt(row.querySelector('.qty-input')?.value) || 0;
-    const price = parseInt(row.querySelector('.price-input')?.value) || 0;
-    overallTotal += qty * price;
-  });
 
-  overallTotalSpan.textContent = overallTotal.toLocaleString();
-}
 
 function populateReceipt(receipt, receiptId = '') {
   cart = {}; // Clear previous cart items
