@@ -215,20 +215,23 @@ function renderCart() {
       let row = cartTableBody.querySelector(`tr[data-key="${key}"]`);
 
       if (row) {
-        // Update qty & total without losing focus
+        // Update qty & price inputs & total without losing focus
         const qtyInput = row.querySelector('.qty-input');
+        const priceInput = row.querySelector('.price-input');
+
         if (document.activeElement !== qtyInput) qtyInput.value = item.qty;
+        if (document.activeElement !== priceInput) priceInput.value = item.price;
 
         const totalCell = row.querySelector('.item-total');
         totalCell.textContent = `UGX ${formatNumberWithCommas(item.qty * item.price)}`;
       } else {
-        // New item → create row
+        // New item → create row with editable qty and price
         row = document.createElement('tr');
         row.dataset.key = key;
         row.innerHTML = `
           <td>${item.name}</td>
           <td><input type="number" min="1" value="${item.qty}" class="qty-input" data-key="${key}" style="width:60px;"></td>
-          <td>UGX ${formatNumberWithCommas(item.price)}</td>
+          <td><input type="number" min="0" value="${item.price}" class="price-input" data-key="${key}" style="width:80px;"></td>
           <td class="item-total">UGX ${formatNumberWithCommas(item.qty * item.price)}</td>
           <td><button class="delete-btn" data-key="${key}">🗑️</button></td>
         `;
@@ -241,42 +244,45 @@ function renderCart() {
 }
 
 
-
-// ===================== EVENT LISTENERS =====================
+// ===================== CART EVENT LISTENER =====================
 cartTableBody.addEventListener('click', e => {
+  const key = e.target.dataset.key;
+  if (!key) return;
+
+  // Handle delete
   if (e.target.classList.contains('delete-btn')) {
-    const key = e.target.dataset.key;
-    removeFromCart(key);
+    delete cart[key];          // remove from cart object
+    const row = e.target.closest('tr');
+    if (row) row.remove();     // remove row from DOM
+    updateOverallTotal();      // refresh totals
   }
 });
 
+// Handle qty & price input changes
 cartTableBody.addEventListener('input', e => {
-  if (e.target.classList.contains('qty-input')) {
-    const key = e.target.dataset.key;
-    const newQty = parseInt(e.target.value);
-    if (cart[key] && newQty > 0) {
-      cart[key].qty = newQty;
-      renderCart();
-    }
-  }
+  const key = e.target.dataset.key;
+  if (!key || !cart[key]) return;
 
+  const item = cart[key];
+
+  if (e.target.classList.contains('qty-input')) {
+    const newQty = parseInt(e.target.value) || 0;
+    if (newQty > 0) item.qty = newQty;
+  }
 
   if (e.target.classList.contains('price-input')) {
-    const price = parseInt(e.target.value);
-    if (price >= 0) cart[key].price = price;
+    const newPrice = parseInt(e.target.value) || 0;
+    if (newPrice >= 0) item.price = newPrice;
   }
 
-  renderCart();
+  // Update just this row's total
+  const row = e.target.closest('tr');
+  const totalCell = row.querySelector('.item-total');
+  totalCell.textContent = `UGX ${formatNumberWithCommas(item.qty * item.price)}`;
+
   updateOverallTotal();
 });
 
-// ✅ Handle delete button
-cartTableBody.addEventListener('click', e => {
-  if (e.target.classList.contains('delete-btn')) {
-    const key = e.target.dataset.key;
-    removeFromCart(key);
-  }
-});
 
 
 
