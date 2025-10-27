@@ -194,25 +194,52 @@ function updateOverallTotal() {
   overallTotalSpan.textContent = `UGX ${formatNumberWithCommas(total)}`;
 }
 
-// ===================== RENDER CART =====================
 function renderCart() {
-  cartTableBody.innerHTML = '';
-
-  for (const key in cart) {
-    const item = cart[key];
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${item.name}</td>
-      <td><input type="number" min="1" value="${item.qty}" class="qty-input" data-key="${key}" style="width:60px;"></td>
-      <td>UGX ${formatNumberWithCommas(item.price)}</td>
-      <td>UGX ${formatNumberWithCommas(item.qty * item.price)}</td>
-      <td><button class="delete-btn" data-key="${key}">🗑️</button></td>
-    `;
-    cartTableBody.appendChild(row);
+  // If table empty, rebuild fully
+  if (cartTableBody.children.length === 0) {
+    cartTableBody.innerHTML = '';
+    for (const key in cart) {
+      const item = cart[key];
+      const row = document.createElement('tr');
+      row.dataset.key = key;
+      row.innerHTML = `
+        <td>${item.name}</td>
+        <td><input type="number" min="1" value="${item.qty}" class="qty-input" data-key="${key}" style="width:60px;"></td>
+        <td>UGX ${formatNumberWithCommas(item.price)}</td>
+        <td class="item-total">UGX ${formatNumberWithCommas(item.qty * item.price)}</td>
+        <td><button class="delete-btn" data-key="${key}">🗑️</button></td>
+      `;
+      cartTableBody.appendChild(row);
+    }
+  } else {
+    // Just update totals and qtys, not rebuild DOM
+    for (const key in cart) {
+      const item = cart[key];
+      const row = cartTableBody.querySelector(`tr[data-key="${key}"]`);
+      if (row) {
+        const qtyInput = row.querySelector('.qty-input');
+        if (document.activeElement !== qtyInput) qtyInput.value = item.qty; // only update if not typing
+        const totalCell = row.querySelector('.item-total');
+        totalCell.textContent = `UGX ${formatNumberWithCommas(item.qty * item.price)}`;
+      } else {
+        // if new item, add it
+        const newRow = document.createElement('tr');
+        newRow.dataset.key = key;
+        newRow.innerHTML = `
+          <td>${item.name}</td>
+          <td><input type="number" min="1" value="${item.qty}" class="qty-input" data-key="${key}" style="width:60px;"></td>
+          <td>UGX ${formatNumberWithCommas(item.price)}</td>
+          <td class="item-total">UGX ${formatNumberWithCommas(item.qty * item.price)}</td>
+          <td><button class="delete-btn" data-key="${key}">🗑️</button></td>
+        `;
+        cartTableBody.appendChild(newRow);
+      }
+    }
   }
 
   updateOverallTotal();
 }
+
 
 // ===================== EVENT LISTENERS =====================
 cartTableBody.addEventListener('click', e => {
