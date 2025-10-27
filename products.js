@@ -195,50 +195,51 @@ function updateOverallTotal() {
 }
 
 function renderCart() {
-  // If table empty, rebuild fully
-  if (cartTableBody.children.length === 0) {
+  // Remove "No items" placeholder if it exists
+  const noItemRow = cartTableBody.querySelector('tr[data-placeholder="true"]');
+  if (noItemRow) noItemRow.remove();
+
+  const keys = Object.keys(cart);
+
+  if (keys.length === 0) {
+    // Cart empty → show placeholder
     cartTableBody.innerHTML = '';
-    for (const key in cart) {
-      const item = cart[key];
-      const row = document.createElement('tr');
-      row.dataset.key = key;
-      row.innerHTML = `
-        <td>${item.name}</td>
-        <td><input type="number" min="1" value="${item.qty}" class="qty-input" data-key="${key}" style="width:60px;"></td>
-        <td>UGX ${formatNumberWithCommas(item.price)}</td>
-        <td class="item-total">UGX ${formatNumberWithCommas(item.qty * item.price)}</td>
-        <td><button class="delete-btn" data-key="${key}">🗑️</button></td>
-      `;
-      cartTableBody.appendChild(row);
-    }
+    const row = document.createElement('tr');
+    row.dataset.placeholder = "true"; // mark as placeholder
+    row.innerHTML = `<td colspan="5" style="text-align:center; color:#999;">No items in cart.</td>`;
+    cartTableBody.appendChild(row);
   } else {
-    // Just update totals and qtys, not rebuild DOM
-    for (const key in cart) {
+    // Cart has items → update existing rows or add new ones
+    keys.forEach(key => {
       const item = cart[key];
-      const row = cartTableBody.querySelector(`tr[data-key="${key}"]`);
+      let row = cartTableBody.querySelector(`tr[data-key="${key}"]`);
+
       if (row) {
+        // Update qty & total without losing focus
         const qtyInput = row.querySelector('.qty-input');
-        if (document.activeElement !== qtyInput) qtyInput.value = item.qty; // only update if not typing
+        if (document.activeElement !== qtyInput) qtyInput.value = item.qty;
+
         const totalCell = row.querySelector('.item-total');
         totalCell.textContent = `UGX ${formatNumberWithCommas(item.qty * item.price)}`;
       } else {
-        // if new item, add it
-        const newRow = document.createElement('tr');
-        newRow.dataset.key = key;
-        newRow.innerHTML = `
+        // New item → create row
+        row = document.createElement('tr');
+        row.dataset.key = key;
+        row.innerHTML = `
           <td>${item.name}</td>
           <td><input type="number" min="1" value="${item.qty}" class="qty-input" data-key="${key}" style="width:60px;"></td>
           <td>UGX ${formatNumberWithCommas(item.price)}</td>
           <td class="item-total">UGX ${formatNumberWithCommas(item.qty * item.price)}</td>
           <td><button class="delete-btn" data-key="${key}">🗑️</button></td>
         `;
-        cartTableBody.appendChild(newRow);
+        cartTableBody.appendChild(row);
       }
-    }
+    });
   }
 
   updateOverallTotal();
 }
+
 
 
 // ===================== EVENT LISTENERS =====================
@@ -914,13 +915,16 @@ cartTableBody.addEventListener('input', function (e) {
 
 function updateItemTotal(element) {
   const row = element.closest('tr');
+  if (!row) return;
+
   const safeName = element.dataset.name;
   const qtyInput = row.querySelector('.qty-input');
   const priceInput = row.querySelector('.price-input');
   const totalCell = document.getElementById(`total-${safeName}`);
 
-  const qty = parseFloat(qtyInput.value) || 0;
-  const price = parseFloat(priceInput.value) || 0;
+  // Safely handle missing inputs
+  const qty = qtyInput ? parseFloat(qtyInput.value) || 0 : 0;
+  const price = priceInput ? parseFloat(priceInput.value) || 0 : 0;
   const total = qty * price;
 
   if (totalCell) {
@@ -929,6 +933,7 @@ function updateItemTotal(element) {
 
   updateOverallTotal();
 }
+
 cartTableBody.addEventListener('input', function (e) {
   if (e.target.classList.contains('qty-input') || e.target.classList.contains('price-input')) {
     updateItemTotal(e.target);
@@ -1154,31 +1159,34 @@ function generateReceiptNumber() {
   return `REC-${datePart}-${randomPart}`;
 }
 
-
 document.getElementById('newReceiptBtn').addEventListener('click', () => {
+  // Reset current receipt tracking
   currentReceiptId = '';
   currentIndex = -1;
+
+  // Clear in-memory cart
   cart = {};
 
-  // Clear inputs
+  // Clear input fields
   customerNameInput.value = '';
   customerDestinationInput.value = '';
   receiptSearchInput.value = '';
 
-  // Clear the cart visually
+  // Render empty cart (will show "No items" placeholder)
   if (typeof renderCart === 'function') {
-    renderCart(); // re-render empty cart
+    renderCart();
   } else {
     cartTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999;">No items in cart.</td></tr>';
   }
 
-  // Reset totals
+  // Reset overall total
   overallTotalSpan.textContent = '0';
 
   // Generate and display new receipt number
   const newReceiptNumber = generateReceiptNumber();
   document.getElementById('orderIdDisplay').textContent = `New Receipt: ${newReceiptNumber}`;
 });
+
 
 
 
