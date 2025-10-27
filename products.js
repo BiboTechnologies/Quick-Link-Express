@@ -614,8 +614,55 @@ const orderId = generateOrderId();
 orderIdDisplay.textContent = `| Order ID: ${orderId}`;
 
 
+// Create and attach a loader overlay to the page
+const loaderOverlay = document.createElement('div');
+loaderOverlay.id = 'loaderOverlay';
+loaderOverlay.style.cssText = `
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  color: white;
+  font-size: 18px;
+  font-family: Arial, sans-serif;
+`;
+loaderOverlay.innerHTML = `
+  <div style="
+    background: #222;
+    padding: 20px 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  ">
+    <div class="spinner" style="
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid #fff;
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      margin: 0 auto 15px;
+      animation: spin 1s linear infinite;
+    "></div>
+    <p>Saving receipt, please wait...</p>
+  </div>
+`;
+document.body.appendChild(loaderOverlay);
 
-document.getElementById('saveReceiptBtn').addEventListener('click', () => {
+// Add the CSS animation for the spinner
+const loaderStyle = document.createElement('style');
+loaderStyle.textContent = `
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`;
+document.head.appendChild(loaderStyle);
+
+
+// ================== SAVE RECEIPT BUTTON ==================
+document.getElementById('saveReceiptBtn').addEventListener('click', async () => {
   const customerName = document.getElementById('customerName').value.trim();
   const destination = document.getElementById('customerDestination').value.trim();
 
@@ -629,7 +676,6 @@ document.getElementById('saveReceiptBtn').addEventListener('click', () => {
     qty: item.qty,
     price: item.price,
     total: item.qty * item.price
-    
   }));
 
   if (receiptItems.length === 0) {
@@ -642,7 +688,7 @@ document.getElementById('saveReceiptBtn').addEventListener('click', () => {
 
   // Generate unique receipt number
   const dateStr = new Date(createdAt).toISOString().slice(0, 10).replace(/-/g, '');
-  const randomNum = Math.floor(10000 + Math.random() * 90000); // 5-digit random number
+  const randomNum = Math.floor(10000 + Math.random() * 90000);
   const receiptNumber = `REC-${dateStr}-${randomNum}`;
 
   const receiptData = {
@@ -654,26 +700,49 @@ document.getElementById('saveReceiptBtn').addEventListener('click', () => {
     createdAt
   };
 
-  // Save to Firebase
-  const receiptsRef = ref(db, 'receipts');
-  const newReceiptRef = push(receiptsRef);
-  set(newReceiptRef, receiptData)
-    .then(() => {
-     
-      alert(`Receipt saved successfully!\nReceipt Number: ${receiptNumber}`);
-loadAllReceipts()
-      // Clear form
-      cartTable.innerHTML = '';
-      document.getElementById('overallTotal').textContent = '0';
-      document.getElementById('customerName').value = '';
-      document.getElementById('customerDestination').value = '';
-      Object.keys(cart).forEach(key => delete cart[key]);
-    })
-    .catch(error => {
-      console.error("Error saving receipt:", error);
-      alert("Failed to save receipt. Please try again.");
-    });
+  try {
+    // 🌀 Show loader
+    loaderOverlay.style.display = 'flex';
+
+    // Save to Firebase
+    const receiptsRef = ref(db, 'receipts');
+    const newReceiptRef = push(receiptsRef);
+    await set(newReceiptRef, receiptData);
+
+    // Refresh receipts list
+    if (typeof loadAllReceipts === "function") {
+      await loadAllReceipts();
+    }
+
+    // Jump to latest receipt
+    if (Array.isArray(receiptList) && receiptList.length > 0) {
+      currentIndex = receiptList.length - 1;
+      const latestReceipt = receiptList[currentIndex];
+      if (latestReceipt && typeof populateReceipt === 'function') {
+        populateReceipt(latestReceipt.data, latestReceipt.id);
+      }
+      updateNavButtons && updateNavButtons();
+    }
+
+    // Clear cart and inputs
+    cart = {};
+    renderCart && renderCart();
+    document.getElementById('overallTotal').textContent = '0';
+    document.getElementById('customerName').value = '';
+    document.getElementById('customerDestination').value = '';
+    document.getElementById('orderIdDisplay').textContent = `Receipt Number: ${receiptNumber}`;
+
+    // ✅ Done
+    alert(`✅ Receipt saved successfully!\nReceipt Number: ${receiptNumber}`);
+  } catch (error) {
+    console.error("🚨 Error saving receipt:", error);
+    alert("Failed to save receipt. Please try again.");
+  } finally {
+    // 🧹 Always hide loader
+    loaderOverlay.style.display = 'none';
+  }
 });
+
 
 
 
@@ -1099,64 +1168,111 @@ function clearReceiptInputs() {
 
 
 
-
+// wire save button (keeps your existing listener pattern)
 document.getElementById('saveChangesBtn').addEventListener('click', () => {
-  // Your logic to save changes to the current receipt
   saveChanges();
 });
 
-function saveChanges() {
+async function saveChanges() {
   if (!currentReceiptId) {
     alert("No receipt selected to save.");
     return;
   }
 
-  // Build updated items array
+  // Collect updated items from the cart table (robust to different DOM shapes)
   const updatedItems = [];
   const rows = cartTableBody.querySelectorAll("tr");
 
   rows.forEach(row => {
-    const name = row.querySelector("input.qty-input")?.dataset.name;
-    if (!name) return; // skip if no item name
+    // skip placeholder / empty rows
+    if (row.dataset.placeholder === "true") return;
 
-    const qtyInput = row.querySelector("input.qty-input");
-    const priceInput = row.querySelector("input.price-input");
+    // Get the name (first td text) — fallback to a .cart-name cell if present
+    const nameCell = row.querySelector('.cart-name') || row.querySelector('td');
+    const name = nameCell ? nameCell.textContent.trim() : null;
+    if (!name) return; // skip row if no name
 
-    const qty = Number(qtyInput.value) || 0;
-    const price = Number(priceInput.value) || 0;
+    // Qty: prefer an input.qty-input, otherwise try to parse the cell text
+    let qty = 0;
+    const qtyInput = row.querySelector('input.qty-input');
+    if (qtyInput) {
+      qty = Number(qtyInput.value) || 0;
+    } else {
+      // attempt to read from second cell
+      const qtyCell = row.querySelectorAll('td')[1];
+      qty = qtyCell ? Number(qtyCell.textContent.trim()) || 0 : 0;
+    }
 
+    // Price: prefer an input.price-input, otherwise try to parse the text (strip UGX/commas)
+    let price = 0;
+    const priceInput = row.querySelector('input.price-input');
+    if (priceInput) {
+      price = Number(priceInput.value) || 0;
+    } else {
+      // attempt to read from third cell (may include "UGX " or commas)
+      const priceCell = row.querySelectorAll('td')[2];
+      if (priceCell) {
+        const txt = priceCell.textContent.replace(/UGX|\s|,/gi, '').trim();
+        price = Number(txt) || 0;
+      }
+    }
+
+    // Only include valid items
     if (qty > 0 && price >= 0) {
-      updatedItems.push({ name, qty, price });
+      updatedItems.push({
+        name,
+        qty,
+        price,
+        total: qty * price
+      });
     }
   });
 
-  // Calculate new total amount
-  const totalAmount = updatedItems.reduce((sum, item) => sum + item.qty * item.price, 0);
+  if (updatedItems.length === 0) {
+    // Either cart is empty or inputs invalid
+    const confirmEmpty = confirm("No valid items found in cart. Do you want to save an empty items list to this receipt?");
+    if (!confirmEmpty) return;
+  }
 
-  // Prepare update object
+  // Compute new total amount
+  const totalAmount = updatedItems.reduce((sum, it) => sum + (it.qty * it.price), 0);
+
+  // Prepare update payload — only update fields you want changed
   const updates = {
     items: updatedItems,
     totalAmount,
+    updatedAt: Date.now()
   };
 
-  // Update Firebase receipt node
-  const receiptRef = ref(db, `receipts/${currentReceiptId}`);
+  try {
+    const receiptRef = ref(db, `receipts/${currentReceiptId}`);
+    await update(receiptRef, updates);
 
-  update(receiptRef, updates)
-    .then(() => {
-      alert("Receipt updated successfully!");
-      // Optionally update local receiptList and re-render
-      if (receiptList[currentIndex]) {
-        receiptList[currentIndex].data.items = updatedItems;
-        receiptList[currentIndex].data.totalAmount = totalAmount;
-      }
-      populateReceipt(receiptList[currentIndex].data, currentReceiptId);
-    })
-    .catch(error => {
-      console.error("Error updating receipt:", error);
-      alert("Failed to update receipt. Check console for details.");
-    });
+    alert("Receipt updated successfully!");
+
+    // Update local receiptList if present
+    if (Array.isArray(receiptList) && receiptList.length > 0 && currentIndex >= 0 && receiptList[currentIndex]) {
+      receiptList[currentIndex].data.items = updatedItems;
+      receiptList[currentIndex].data.totalAmount = totalAmount;
+    }
+
+    // Re-populate the visible receipt (if populateReceipt exists)
+    if (typeof populateReceipt === 'function') {
+      const dataToShow = { items: updatedItems, totalAmount };
+      populateReceipt(dataToShow, currentReceiptId);
+    } else {
+      // otherwise re-render cart and totals
+      cart = {}; // optionally keep local cart in sync
+      updatedItems.forEach(it => cart[it.name] = { name: it.name, qty: it.qty, price: it.price });
+      renderCart && typeof renderCart === 'function' ? renderCart() : updateOverallTotal();
+    }
+
+  } catch (error) {
+    console.error("Error updating receipt:", error);
+    alert("Failed to update receipt. See console for details.");
+  }
 }
+
 
 function generateReceiptNumber() {
   const now = new Date();
