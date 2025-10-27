@@ -994,8 +994,10 @@ td strong {
   /* Overall Total */
   #overallTotal {
     font-size: 1.4em;
-    color: #222;
-    font-weight: bold;
+    color: #026900;
+    font-weight: 700;
+      margin-bottom: 5px;
+
   }
 
   p strong {
@@ -1003,11 +1005,11 @@ td strong {
   }
 
   #totalContainer {
-  margin: 5px;
+  margin-bottom: 5px;
   padding: 10px;
   background: #f8f8f8;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0.9);
   font-size: 1.2em;
   font-weight: 800;
   color: #2c8b00;
