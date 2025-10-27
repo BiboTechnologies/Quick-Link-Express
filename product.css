@@ -1003,14 +1003,14 @@ td strong {
   }
 
   #totalContainer {
-  margin-top: 20px;
+  margin: 5px;
+  padding: 10px;
   background: #f8f8f8;
-  padding: 15px 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   font-size: 1.2em;
-  font-weight: bold;
-  color: #333;
+  font-weight: 800;
+  color: #2c8b00;
   display: inline-block;
 }
 
