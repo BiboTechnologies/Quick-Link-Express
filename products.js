@@ -22,7 +22,6 @@ const storage = getStorage(app);
 let products = [];
 let cart = {};
 let searchTimeout;
-
 // ====================== FETCH PRODUCTS ======================
 async function fetchProductsFromFirebase() {
   products = []; // reset before reload
@@ -37,13 +36,16 @@ async function fetchProductsFromFirebase() {
 
     const data = snapshot.val();
 
-    // ✅ Flatten simple product structure
+    // ✅ Flatten and sanitize products for consistent cart keys
     for (const key in data) {
       const p = data[key];
       if (p && p.name && p.price !== undefined) {
+        const safeKey = getSafeName(p.name); // <== 🔑 same sanitizer used in cart logic
+
         products.push({
           id: key,
-          name: p.name,
+          name: p.name.trim(),
+          key: safeKey,        // ✅ store sanitized key for direct addToCart use
           price: parseInt(p.price) || 0,
           description: p.description || '',
           category: p.category || '',
@@ -60,17 +62,32 @@ async function fetchProductsFromFirebase() {
   }
 }
 
+
 // ====================== INITIALIZE ======================
 async function initApp() {
-  console.log("⏳ Fetching products...");
-  const loaded = await fetchProductsFromFirebase();
+  const loader = document.getElementById('loaderOverlay');
+  loader.classList.remove('hidden');
 
-  if (loaded && products.length > 0) {
-    console.log("✅ Products ready — attaching search input listener...");
-    attachSearchListener();
-  } else {
-    console.error("❌ Could not load products. Retrying in 2s...");
-    setTimeout(initApp, 2000); // 🔁 retry in case Firebase was slow
+  console.log("⏳ Fetching products...");
+
+  try {
+    const loaded = await fetchProductsFromFirebase();
+
+    if (loaded && products.length > 0) {
+      console.log("✅ Products ready — attaching search input listener...");
+      attachSearchListener();
+
+      // hide loader smoothly
+      setTimeout(() => loader.classList.add('hidden'), 500);
+    } else {
+      console.error("❌ Could not load products. Retrying in 2s...");
+      loader.querySelector('p').textContent = 'Retrying... please wait';
+      setTimeout(initApp, 2000);
+    }
+  } catch (error) {
+    console.error("🚨 Error initializing app:", error);
+    loader.querySelector('p').textContent = 'Error loading data. Retrying...';
+    setTimeout(initApp, 2000);
   }
 }
 
@@ -80,6 +97,7 @@ function attachSearchListener() {
   const dropdown = document.getElementById('dropdown');
 
   searchInput.addEventListener('input', function () {
+    
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
       const query = this.value.trim().toLowerCase();
@@ -130,23 +148,135 @@ function attachSearchListener() {
 // ====================== START APP ======================
 initApp();
 
-// ✅ Add to Cart Function
-function addToCart(product) {
-  if (!cart[product.name]) {
-    cart[product.name] = { ...product, qty: 1 };
-  } else {
-    cart[product.name].qty += 1;
-  }
-  renderCart();
-}
 
 
-  function removeFromCart(name) {
-  delete cart[name];
-  renderCart();
-}
+
+// ===================== CART STATE =====================
 const cartTableBody = document.querySelector('#cartTable tbody');
 const overallTotalSpan = document.getElementById('overallTotal');
+
+// ===================== HELPERS =====================
+function getSafeName(name) {
+  return name.replace(/\W+/g, '_');
+}
+
+function formatNumberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// ===================== ADD TO CART =====================
+function addToCart(product) {
+  const safeKey = getSafeName(product.name);
+
+  if (!cart[safeKey]) {
+    cart[safeKey] = { ...product, qty: 1 };
+  } else {
+    cart[safeKey].qty += 1;
+  }
+
+  renderCart();
+}
+
+// ===================== REMOVE FROM CART =====================
+function removeFromCart(safeKey) {
+  if (cart[safeKey]) {
+    delete cart[safeKey];
+    renderCart();
+  }
+}
+
+// ===================== UPDATE TOTAL =====================
+function updateOverallTotal() {
+  let total = 0;
+  for (const key in cart) {
+    total += cart[key].price * cart[key].qty;
+  }
+  overallTotalSpan.textContent = `UGX ${formatNumberWithCommas(total)}`;
+}
+
+// ===================== RENDER CART =====================
+function renderCart() {
+  cartTableBody.innerHTML = '';
+
+  for (const key in cart) {
+    const item = cart[key];
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${item.name}</td>
+      <td><input type="number" min="1" value="${item.qty}" class="qty-input" data-key="${key}" style="width:60px;"></td>
+      <td>UGX ${formatNumberWithCommas(item.price)}</td>
+      <td>UGX ${formatNumberWithCommas(item.qty * item.price)}</td>
+      <td><button class="delete-btn" data-key="${key}">🗑️</button></td>
+    `;
+    cartTableBody.appendChild(row);
+  }
+
+  updateOverallTotal();
+}
+
+// ===================== EVENT LISTENERS =====================
+cartTableBody.addEventListener('click', e => {
+  if (e.target.classList.contains('delete-btn')) {
+    const key = e.target.dataset.key;
+    removeFromCart(key);
+  }
+});
+
+cartTableBody.addEventListener('input', e => {
+  if (e.target.classList.contains('qty-input')) {
+    const key = e.target.dataset.key;
+    const newQty = parseInt(e.target.value);
+    if (cart[key] && newQty > 0) {
+      cart[key].qty = newQty;
+      renderCart();
+    }
+  }
+
+
+  if (e.target.classList.contains('price-input')) {
+    const price = parseInt(e.target.value);
+    if (price >= 0) cart[key].price = price;
+  }
+
+  renderCart();
+  updateOverallTotal();
+});
+
+// ✅ Handle delete button
+cartTableBody.addEventListener('click', e => {
+  if (e.target.classList.contains('delete-btn')) {
+    const key = e.target.dataset.key;
+    removeFromCart(key);
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ===================== CART LOGIC =====================
 
@@ -155,6 +285,7 @@ cartTableBody.addEventListener('click', e => {
   if (e.target.classList.contains('delete-btn')) {
     const name = e.target.dataset.name;
     delete cart[name];
+    
     renderCart();
     updateOverallTotal(); // refresh totals
   }
@@ -198,55 +329,7 @@ function updateRowTotal(name) {
   }
 }
 
-function updateOverallTotal() {
-  let overall = 0;
 
-  // Loop through all total cells
-  document.querySelectorAll('.cart-total').forEach(td => {
-    const text = td.textContent.replace(/[^\d.]/g, ''); // remove UGX and commas
-    const value = parseFloat(text) || 0;
-    overall += value;
-  });
-
-  overallTotalSpan.textContent = formatNumberWithCommas(overall);
-}
-
-
-function renderCart() {
-  cartTableBody.innerHTML = '';
-  let overallTotal = 0;
-
-  for (const key in cart) {
-    const item = cart[key];
-    if (!item || !item.name || item.qty == null || item.price == null) continue;
-
-    const itemTotal = item.qty * item.price;
-    overallTotal += itemTotal;
-
-    // Use a consistent safe name for both id and data-name
-    const safeName = item.name.replace(/\W+/g, '_'); // e.g. "Panadol Extra" -> "Panadol_Extra"
-
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td class="cart-name">${item.name}</td>
-      <td><input type="number" min="1" value="${item.qty}" data-name="${safeName}" class="qty-input"></td>
-      <td><input type="number" min="0" value="${item.price}" data-name="${safeName}" class="price-input"></td>
-      <td id="total-${safeName}" class="cart-total">UGX ${formatNumberWithCommas(itemTotal)}</td>
-      <td><button class="delete-btn" data-name="${safeName}">Delete</button></td>
-    `;
-    cartTableBody.appendChild(row);
-  }
-
-  overallTotalSpan.textContent = formatNumberWithCommas(overallTotal);
-}
-
-
-
-// --- Format numbers ---
-function formatNumberWithCommas(x) {
-  if (x == null) return '0';
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
 
 // ===================== ANIMATION STYLE =====================
 const style = document.createElement('style');
