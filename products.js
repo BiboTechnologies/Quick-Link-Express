@@ -353,23 +353,33 @@ document.getElementById('printBtn').addEventListener('click', () => {
   let itemsHTML = '';
   let grandTotal = 0;
 
-  cartRows.forEach(row => {
-    const cells = row.querySelectorAll('td');
-    if (cells.length < 4) return;
+cartRows.forEach(row => {
+  const cells = row.querySelectorAll('td');
+  if (cells.length < 4) return;
 
-    const name = cells[0].textContent.trim();
-    const qty = Number(cells[1].querySelector('input')?.value || cells[1].textContent.trim());
-    const price = Number(cells[2].querySelector('input')?.value || cells[2].textContent.replace(/,/g, ''));
-    const total = qty * price;
-    grandTotal += total;
+  const name = cells[0].textContent.trim();
 
-    itemsHTML += `<tr>
+  // Get quantity safely
+  const qtyValue = cells[1].querySelector('input')?.value || cells[1].textContent.trim();
+  const qty = parseFloat(qtyValue.replace(/[^\d.]/g, '')) || 0;
+
+  // Get price safely
+  const priceValue = cells[2].querySelector('input')?.value || cells[2].textContent.trim();
+  const price = parseFloat(priceValue.replace(/[^\d.]/g, '')) || 0;
+
+  const total = qty * price;
+  grandTotal += total;
+
+  itemsHTML += `
+    <tr>
       <td>${name}</td>
       <td>${qty}</td>
       <td>${price.toLocaleString()}</td>
       <td>${total.toLocaleString()}</td>
-    </tr>`;
-  });
+    </tr>
+  `;
+});
+
 
   const receiptHTML = `
 <html>
